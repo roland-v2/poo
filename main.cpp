@@ -1,6 +1,10 @@
-// Priect POO - Boldesco Roland
+// Proiect POO - Boldesco Roland
 
 #include "monster.h"
+#include </opt/homebrew/include/SDL2/SDL.h>
+#include </opt/homebrew/include/SDL2/SDL_image.h>
+#include </opt/homebrew/include/SDL2/SDL_ttf.h>
+#include </opt/homebrew/include/SDL2/SDL_mixer.h>
 #include <iostream>
 
 int main() {
