@@ -1,7 +1,7 @@
 #include "game.h"
 
 Game::Game() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return;
     }
@@ -18,7 +18,14 @@ Game::Game() {
     count = 0;
     star.setDest(50, 50, 58, 55);
     star.setSrc(0, 0, 580, 550);
-    star.setImage("star.png", renderer);
+    star.setImage("res/star.png", renderer);
+    font = TTF_OpenFont("res/sans.ttf", 12);
+    effect.Load("res/button.wav");
+    effect2.Load("res/ice.wav");
+    player.setImage("res/cat2.png", renderer);
+    player.setDest(150, 20, 50*4, 65*4);
+    idol = player.createCycle(1, 250, 500, 2, 30);
+    player.setCurrAnim(idol);
     Loop();
 }
 
@@ -37,20 +44,15 @@ void Game::Loop() {
                 running = false;
             }
         }
-
         lastFrame = SDL_GetTicks();
         static int lastTime;
         if(lastFrame >= (lastTime + 1000)) {
             lastTime = lastFrame;
             frameCount = 0;
-            count++;
         }
-
         Render();
         Input();
         Update();
-
-        if(count > 3) running = false;
     }
 }
 
@@ -63,7 +65,8 @@ void Game::Render() {
     SDL_RenderFillRect(renderer, &rect);
 
     Draw(star);
-    Draw("Pupicei", 120, 65, 255, 255, 255, 12);
+    Draw("Pupicei", 120, 65, 255, 255, 255);
+    Draw(player);
 
     frameCount++;
     int timerFPS = SDL_GetTicks() - lastFrame;
@@ -80,10 +83,9 @@ void Game::Draw(Object o) {
     SDL_RenderCopyEx(renderer, o.getTex(), &src, &dest, 0, NULL, SDL_FLIP_NONE);
 }
 
-void Game::Draw(const char *msg, int x, int y, int r, int g, int b, int size) {
+void Game::Draw(const char *msg, int x, int y, int r, int g, int b) {
     SDL_Surface *surf;
     SDL_Texture *tex;
-    TTF_Font *font = TTF_OpenFont("sans.ttf", size);
     SDL_Color color;
     color.r = r;
     color.g = g;
@@ -99,5 +101,33 @@ void Game::Draw(const char *msg, int x, int y, int r, int g, int b, int size) {
     SDL_FreeSurface(surf);
     SDL_RenderCopy(renderer, tex, NULL, &rect);
     SDL_DestroyTexture(tex);
+}
 
+void Game::Input() {
+    SDL_Event event;
+    while(SDL_PollEvent(&event)) {
+        if(event.type == SDL_QUIT) {
+            running = false;
+            std::cout << "Quit" << std::endl;
+        }
+        if(event.type == SDL_KEYDOWN) {
+            if(event.key.keysym.sym == SDLK_ESCAPE) running = false;
+            if(event.key.keysym.sym == SDLK_w) {
+                std::cout << "w down" << std::endl; 
+                effect.Play();
+            }
+            if(event.key.keysym.sym == SDLK_a) {
+                std::cout << "a down" << std::endl; 
+                effect2.Play();
+            }
+        }
+        if(event.type == SDL_KEYUP) {
+            if(event.key.keysym.sym == SDLK_w) std::cout << "w up" << std::endl;
+        }
+        SDL_GetMouseState(&mouse_x, &mouse_y);
+    }
+}
+
+void Game::Update() {
+    player.updateAnimation();
 }
