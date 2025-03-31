@@ -13,7 +13,21 @@ int Entity::createCycle(int r, int w, int h, int amount, int speed) {
 }
 void Entity::updateAnimation() {
     setSrc(animations[currAnim].w * animations[currAnim].tick, animations[currAnim].row * animations[currAnim].h, animations[currAnim].w, animations[currAnim].h);
-    if(begin > animations[currAnim].speed) {animations[currAnim].tick++; begin = 0;}
+    if(begin > animations[currAnim].speed) {
+        animations[currAnim].tick++;
+        //if(!rev) animations[currAnim].tick++;
+        //if(rev) animations[currAnim].tick--;
+        begin = 0;
+    }
     begin++;
     if(animations[currAnim].tick >= animations[currAnim].amount) {animations[currAnim].tick = 0;}
+    /*if(animations[currAnim].tick <= 0) {
+        if(nAb) {
+            currAnim = newAnim;
+            nAb = 0;
+            rev = 0;
+        } else {
+            animations[currAnim].tick = 0;
+        }
+    }*/
 }

@@ -32,4 +32,5 @@ private:
     Audio effect2;
     Entity player;
     int idol;
+    //int shield;
 };

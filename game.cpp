@@ -22,9 +22,10 @@ Game::Game() {
     font = TTF_OpenFont("res/sans.ttf", 12);
     effect.Load("res/button.wav");
     effect2.Load("res/ice.wav");
-    player.setImage("res/cat2.png", renderer);
-    player.setDest(150, 20, 50*4, 65*4);
-    idol = player.createCycle(1, 250, 500, 2, 30);
+    player.setImage("res/penguin.png", renderer);
+    player.setDest(150, 20, 50*3, 65*3);
+    idol = player.createCycle(1, 128, 128, 4, 12);
+    //shield = player.createCycle(1, 128, 128, 4, 12);
     player.setCurrAnim(idol);
     Loop();
 }
@@ -65,7 +66,7 @@ void Game::Render() {
     SDL_RenderFillRect(renderer, &rect);
 
     Draw(star);
-    Draw("Pupicei", 120, 65, 255, 255, 255);
+    Draw("HauBau", 120, 65, 255, 255, 255);
     Draw(player);
 
     frameCount++;
@@ -114,15 +115,18 @@ void Game::Input() {
             if(event.key.keysym.sym == SDLK_ESCAPE) running = false;
             if(event.key.keysym.sym == SDLK_w) {
                 std::cout << "w down" << std::endl; 
-                effect.Play();
+                //player.setCurrAnim(shield);
+                //effect.Play();
             }
             if(event.key.keysym.sym == SDLK_a) {
                 std::cout << "a down" << std::endl; 
-                effect2.Play();
+                //effect2.Play();
             }
         }
         if(event.type == SDL_KEYUP) {
-            if(event.key.keysym.sym == SDLK_w) std::cout << "w up" << std::endl;
+            if(event.key.keysym.sym == SDLK_w) {
+                std::cout << "w up" << std::endl;
+            }
         }
         SDL_GetMouseState(&mouse_x, &mouse_y);
     }
