@@ -8,6 +8,12 @@
 #include </opt/homebrew/include/SDL2/SDL_ttf.h>
 #include </opt/homebrew/include/SDL2/SDL_mixer.h>
 #include <iostream>
+#include <fstream>
+#include <vector>
+
+#define Width 1280
+#define Height 720
+#define Tile_size 5
 
 class Game {
 public:
@@ -19,6 +25,9 @@ public:
     void Render();
     void Draw(Object o);
     void Draw(const char *msg, int x, int y, int r, int g, int b);
+    void loadMap(const char *filename);
+    void drawMap();
+    void scroll();
 private:
     SDL_Renderer *renderer;
     SDL_Window *window;
@@ -26,11 +35,8 @@ private:
     bool running;
     int count;
     int frameCount, timerFPS, lastFrame;
-    Object star;
     int mouse_x, mouse_y;
-    Audio effect;
-    Audio effect2;
     Entity player;
-    int idol;
-    //int shield;
+    vector<Object> map;
+    int mapX, mapY;
 };

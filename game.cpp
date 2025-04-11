@@ -6,7 +6,7 @@ Game::Game() {
         return;
     }
 
-    if (SDL_CreateWindowAndRenderer(360, 240, 0, &window, &renderer) != 0) {
+    if (SDL_CreateWindowAndRenderer(Width, Height, 0, &window, &renderer) != 0) {
         std::cerr << "Window and renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return;
     }
@@ -16,21 +16,13 @@ Game::Game() {
     TTF_Init();
     running = true;
     count = 0;
-    star.setDest(50, 50, 58, 55);
-    star.setSrc(0, 0, 580, 550);
-    star.setImage("res/star.png", renderer);
     font = TTF_OpenFont("res/sans.ttf", 12);
-    effect.Load("res/button.wav");
-    effect2.Load("res/ice.wav");
-    player.setImage("res/penguin.png", renderer);
-    player.setDest(150, 20, 50*3, 65*3);
-    idol = player.createCycle(1, 128, 128, 4, 12);
-    //shield = player.createCycle(1, 128, 128, 4, 12);
-    player.setCurrAnim(idol);
+    loadMap("res/2.level");
     Loop();
 }
 
 Game::~Game() {
+    TTF_CloseFont(font);
     TTF_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -39,6 +31,7 @@ Game::~Game() {
 
 void Game::Loop() {
     SDL_Event event;
+    static int lastTime;
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -46,7 +39,6 @@ void Game::Loop() {
             }
         }
         lastFrame = SDL_GetTicks();
-        static int lastTime;
         if(lastFrame >= (lastTime + 1000)) {
             lastTime = lastFrame;
             frameCount = 0;
@@ -58,16 +50,15 @@ void Game::Loop() {
 }
 
 void Game::Render() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_SetRenderDrawColor(renderer, 34, 34, 34, 255);
     SDL_Rect rect;
     rect.x = rect.y = 0;
-    rect.w = 360;
-    rect.h = 240;
+    rect.w = Width;
+    rect.h = Height;
     SDL_RenderFillRect(renderer, &rect);
 
-    Draw(star);
-    Draw("HauBau", 120, 65, 255, 255, 255);
-    Draw(player);
+    drawMap();
+    //draw(player);
 
     frameCount++;
     int timerFPS = SDL_GetTicks() - lastFrame;
@@ -113,25 +104,47 @@ void Game::Input() {
         }
         if(event.type == SDL_KEYDOWN) {
             if(event.key.keysym.sym == SDLK_ESCAPE) running = false;
-            if(event.key.keysym.sym == SDLK_w) {
-                std::cout << "w down" << std::endl; 
-                //player.setCurrAnim(shield);
-                //effect.Play();
-            }
-            if(event.key.keysym.sym == SDLK_a) {
-                std::cout << "a down" << std::endl; 
-                //effect2.Play();
-            }
-        }
-        if(event.type == SDL_KEYUP) {
-            if(event.key.keysym.sym == SDLK_w) {
-                std::cout << "w up" << std::endl;
-            }
         }
         SDL_GetMouseState(&mouse_x, &mouse_y);
     }
 }
 
 void Game::Update() {
-    player.updateAnimation();
+    //player.updateAnimation();
+}
+
+void Game::loadMap(const char *filename) {
+    int current, mx, my, mw, mh;
+    ifstream in(filename);
+    if(!in.is_open()) {
+        cout << "Failed to open map file" << endl;
+        return;
+    }
+    in >> mw;
+    in >> mh;
+    in >> mx;
+    in >> my;
+    for(int i = 0; i < mh; i++) {
+        for(int j = 0; j < mw; j++) {
+            if(in.eof()) {
+                cout << "Reached end of map file too soon" << endl;
+                return;
+            }
+            in >> current;
+            if(current != 0) {
+                Object temp;
+                temp.setImage("res/Untitled1.png", renderer);
+                temp.setSrc((current-1)*Tile_size, 0, Tile_size, Tile_size);
+                temp.setDest(j * Tile_size + mx, i * Tile_size + my, Tile_size, Tile_size);                if(current == 2 || current == 4) temp.setSolid(0);
+                map.push_back(temp);
+            }
+        }
+    }
+    in.close();
+}
+
+void Game::drawMap() {
+    for (int i = 0; i < map.size(); i++) {
+        Draw(map[i]);
+    }
 }
