@@ -21,13 +21,6 @@ void Object::setSrc(int x, int y, int w, int h) {
 
 void Object::setImage(string filename, SDL_Renderer *renderer) {
     SDL_Surface *surf = IMG_Load(filename.c_str());
-    tex = SDL_CreateTextureFromSurface(renderer, surf);
-}
-
-int Object::getDX() {
-    return dest.x;
-}
-
-int Object::getDY() {
-    return dest.y;
+    //tex = SDL_CreateTextureFromSurface(renderer, surf);
+    tex = IMG_LoadTexture(renderer, filename.c_str());
 }

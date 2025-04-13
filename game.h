@@ -13,7 +13,8 @@
 
 #define Width 1280
 #define Height 720
-#define Tile_size 5
+#define Tile_size 25
+#define Gravity 10
 
 class Game {
 public:
@@ -27,7 +28,8 @@ public:
     void Draw(const char *msg, int x, int y, int r, int g, int b);
     void loadMap(const char *filename);
     void drawMap();
-    void scroll();
+    void scroll(int x, int y);
+    bool collision(Object a, Object b);
 private:
     SDL_Renderer *renderer;
     SDL_Window *window;
@@ -39,4 +41,8 @@ private:
     Entity player;
     vector<Object> map;
     int mapX, mapY;
+    int speed;
+    bool l=0, r=0, u=0, d=0;
+    int idol, run;
+    bool canMove;
 };

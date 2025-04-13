@@ -18,6 +18,12 @@ Game::Game() {
     count = 0;
     font = TTF_OpenFont("res/sans.ttf", 12);
     loadMap("res/2.level");
+    speed = 4;
+    player.setDest(Width/2-40, Height/2-48, 250/4, 249/4);
+    player.setImage("res/animation.png", renderer);
+    idol = player.createCycle(1, 250, 249, 1, 20);
+    run = player.createCycle(1, 250, 249, 4, 6);
+    player.setCurrAnim(idol);
     Loop();
 }
 
@@ -26,12 +32,14 @@ Game::~Game() {
     TTF_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    IMG_Quit();
+    TTF_Quit();
     SDL_Quit();
 }
 
 void Game::Loop() {
     SDL_Event event;
-    static int lastTime;
+    static int lastTime = 0;
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -58,7 +66,7 @@ void Game::Render() {
     SDL_RenderFillRect(renderer, &rect);
 
     drawMap();
-    //draw(player);
+    Draw(player);
 
     frameCount++;
     int timerFPS = SDL_GetTicks() - lastFrame;
@@ -104,16 +112,101 @@ void Game::Input() {
         }
         if(event.type == SDL_KEYDOWN) {
             if(event.key.keysym.sym == SDLK_ESCAPE) running = false;
+            if(event.key.keysym.sym == SDLK_a) {l = 1; r = 0;}
+            if(event.key.keysym.sym == SDLK_d) {r = 1; l = 0;}
+            if(event.key.keysym.sym == SDLK_w) {u = 1; d = 0;}
+            if(event.key.keysym.sym == SDLK_s) {d = 1; u = 0;}
+        }
+        if(event.type == SDL_KEYUP) {
+            if(event.key.keysym.sym == SDLK_a) {l = 0; player.setCurrAnim(idol);}
+            if(event.key.keysym.sym == SDLK_d) {r = 0; player.setCurrAnim(idol);}
+            if(event.key.keysym.sym == SDLK_w) {u = 0; player.setCurrAnim(idol);}
+            if(event.key.keysym.sym == SDLK_s) {d = 0; player.setCurrAnim(idol);}
         }
         SDL_GetMouseState(&mouse_x, &mouse_y);
     }
 }
 
 void Game::Update() {
-    //player.updateAnimation();
+    Object tempPlayer;
+    bool canMove;
+
+    if (l) {
+        tempPlayer = player;
+        tempPlayer.setDest(player.getDX() - speed, player.getDY());
+        canMove = true;
+        for (auto& tile : map) {
+            if (tile.getID() == 3 && collision(tempPlayer, tile)) {
+                canMove = false;
+                break;
+            }
+        }
+        if (canMove) {
+            if (player.getCurrAnim() != run) player.setCurrAnim(run);
+            player.setDest(tempPlayer.getDX(), tempPlayer.getDY());
+        }
+    }
+
+    if (r) {
+        tempPlayer = player;
+        tempPlayer.setDest(player.getDX() + speed, player.getDY());
+        canMove = true;
+        for (auto& tile : map) {
+            if (tile.getID() == 3 && collision(tempPlayer, tile)) {
+                canMove = false;
+                break;
+            }
+        }
+        if (canMove) {
+            if (player.getCurrAnim() != run) player.setCurrAnim(run);
+            player.setDest(tempPlayer.getDX(), tempPlayer.getDY());
+        }
+    }
+
+    if (u) {
+        tempPlayer = player;
+        tempPlayer.setDest(player.getDX(), player.getDY() - speed);
+        canMove = true;
+        for (auto& tile : map) {
+            if (tile.getID() == 3 && collision(tempPlayer, tile)) {
+                canMove = false;
+                break;
+            }
+        }
+        if (canMove) {
+            if (player.getCurrAnim() != run) player.setCurrAnim(run);
+            player.setDest(tempPlayer.getDX(), tempPlayer.getDY());
+        }
+    }
+
+    if (d) {
+        tempPlayer = player;
+        tempPlayer.setDest(player.getDX(), player.getDY() + speed);
+        canMove = true;
+        for (auto& tile : map) {
+            if (tile.getID() == 3 && collision(tempPlayer, tile)) {
+                canMove = false;
+                break;
+            }
+        }
+        if (canMove) {
+            if (player.getCurrAnim() != run) player.setCurrAnim(run);
+            player.setDest(tempPlayer.getDX(), tempPlayer.getDY());
+        }
+    }
+
+    SDL_Rect finalDest = player.getDest();
+    if (finalDest.x < 140) { player.setDest(140, finalDest.y); scroll(speed, 0); }
+    if (finalDest.x > Width - 200) { player.setDest(Width - 200, finalDest.y); scroll(-speed, 0); }
+    if (finalDest.y < 220) { player.setDest(finalDest.x, 220); scroll(0, speed); }
+    if (finalDest.y > Height - 260) { player.setDest(finalDest.x, Height - 260); scroll(0, -speed); }
+
+    player.updateAnimation();
 }
 
 void Game::loadMap(const char *filename) {
+    Object temp;
+    temp.setImage("res/colors.png", renderer);
     int current, mx, my, mw, mh;
     ifstream in(filename);
     if(!in.is_open()) {
@@ -132,10 +225,11 @@ void Game::loadMap(const char *filename) {
             }
             in >> current;
             if(current != 0) {
-                Object temp;
-                temp.setImage("res/Untitled1.png", renderer);
+                temp.setSolid(1);
                 temp.setSrc((current-1)*Tile_size, 0, Tile_size, Tile_size);
-                temp.setDest(j * Tile_size + mx, i * Tile_size + my, Tile_size, Tile_size);                if(current == 2 || current == 4) temp.setSolid(0);
+                temp.setDest(j * Tile_size + mx, i * Tile_size + my, Tile_size, Tile_size);
+                temp.setID(current);              
+                if(current == 3) temp.setSolid(0);
                 map.push_back(temp);
             }
         }
@@ -145,6 +239,30 @@ void Game::loadMap(const char *filename) {
 
 void Game::drawMap() {
     for (int i = 0; i < map.size(); i++) {
-        Draw(map[i]);
+        int dx = map[i].getDX();
+        int dy = map[i].getDY();
+
+        bool visible = dx + Tile_size >= 0 &&
+                       dy + Tile_size >= 0 &&
+                       dx < Width &&
+                       dy < Height;
+
+        if (visible) {
+            Draw(map[i]);
+        }
+    }
+}
+
+void Game::scroll(int x, int y) {
+    for (int i = 0; i < map.size(); i++) {
+        map[i].setDest(map[i].getDX() + x, map[i].getDY() + y);
+    }
+}
+
+bool Game::collision(Object a, Object b) {
+    if((a.getDX() < (b.getDX() + b.getDW())) && ((a.getDX() + a.getDW()) > b.getDX()) && (a.getDY() < (b.getDY() + b.getDH())) && ((a.getDY() + a.getDH()) > b.getDY())) {
+        return true;
+    } else {
+        return false;
     }
 }
