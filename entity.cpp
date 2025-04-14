@@ -1,6 +1,6 @@
 #include "entity.h"
 
-int Entity::createCycle(int r, int w, int h, int amount, int speed) {
+int Entity::CreateCycle(int r, int w, int h, int amount, int speed) {
     cycle temp;
     temp.row = r - 1;
     temp.w = w;
@@ -11,23 +11,12 @@ int Entity::createCycle(int r, int w, int h, int amount, int speed) {
     animations.push_back(temp);
     return animations.size() - 1;
 }
-void Entity::updateAnimation() {
-    setSrc(animations[currAnim].w * animations[currAnim].tick, animations[currAnim].row * animations[currAnim].h, animations[currAnim].w, animations[currAnim].h);
+void Entity::UpdateAnimation() {
+    SetSrc(animations[currAnim].w * animations[currAnim].tick, animations[currAnim].row * animations[currAnim].h, animations[currAnim].w, animations[currAnim].h);
     if(begin > animations[currAnim].speed) {
         animations[currAnim].tick++;
-        //if(!rev) animations[currAnim].tick++;
-        //if(rev) animations[currAnim].tick--;
         begin = 0;
     }
     begin++;
     if(animations[currAnim].tick >= animations[currAnim].amount) {animations[currAnim].tick = 0;}
-    /*if(animations[currAnim].tick <= 0) {
-        if(nAb) {
-            currAnim = newAnim;
-            nAb = 0;
-            rev = 0;
-        } else {
-            animations[currAnim].tick = 0;
-        }
-    }*/
 }

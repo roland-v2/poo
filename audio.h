@@ -8,7 +8,6 @@
 
 class Audio {
 public:
-    Audio();
     ~Audio();
     void Load(const char *filename);
     void Play();

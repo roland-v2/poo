@@ -26,10 +26,10 @@ public:
     void Render();
     void Draw(Object o);
     void Draw(const char *msg, int x, int y, int r, int g, int b);
-    void loadMap(const char *filename);
-    void drawMap();
-    void scroll(int x, int y);
-    bool collision(Object a, Object b);
+    void LoadMap(const char *filename);
+    void DrawMap();
+    void Scroll(int x, int y);
+    bool Collision(Object a, Object b);
 private:
     SDL_Renderer *renderer;
     SDL_Window *window;

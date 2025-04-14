@@ -16,19 +16,19 @@ private:
     int id;
 public:
     Object() {solid = 1;};
-    SDL_Rect getDest() const {return dest;}
-    SDL_Rect getSrc() const {return src;}
-    void setDest(int x, int y, int w, int h);
-    void setDest(int x, int y);
-    void setSrc(int x, int y, int w, int h);
-    void setImage(string filename, SDL_Renderer *renderer);
-    SDL_Texture *getTex() const {return tex;}
-    void setSolid(bool s) {solid = s;}
-    bool getSolid()const {return solid;}
-    int getDX() const {return dest.x;}
-    int getDY() const {return dest.y;}
-    int getDW() const {return dest.w;}
-    int getDH() const {return dest.h;}
-    void setID(int i) {id = i;}
-    int getID() const {return id;};
+    SDL_Rect GetDest() const {return dest;}
+    SDL_Rect GetSrc() const {return src;}
+    void SetDest(int x, int y, int w, int h);
+    void SetDest(int x, int y);
+    void SetSrc(int x, int y, int w, int h);
+    void SetImage(string filename, SDL_Renderer *renderer);
+    SDL_Texture *GetTex() const {return tex;}
+    void SetSolid(bool s) {solid = s;}
+    bool GetSolid()const {return solid;}
+    int GetDX() const {return dest.x;}
+    int GetDY() const {return dest.y;}
+    int GetDW() const {return dest.w;}
+    int GetDH() const {return dest.h;}
+    void SetID(int i) {id = i;}
+    int GetID() const {return id;};
 };

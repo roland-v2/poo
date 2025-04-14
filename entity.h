@@ -10,17 +10,14 @@
 
 class Entity : public Object {
 public:
-    //Entity() {rev = false;}
-    void setHealth(int h) {health = h;}
-    void setMaxHealth(int h) {maxHealth = h;}
-    int getHealth() const {return health;}
-    int getMaxHealth() const {return maxHealth;}
-    int createCycle(int r, int w, int h, int amount, int speed);
-    void setCurrAnim(int c) {begin = 0; currAnim = c;}
-    int getCurrAnim() const {return currAnim;}
-    void updateAnimation();
-    //void reverse(bool r) {rev = r;}
-    //void reverse(bool r, int nA) {rev = r; nAb = 1; nA = newAnim;}
+    void SetHealth(int h) {health = h;}
+    void SetMaxHealth(int h) {maxHealth = h;}
+    int GetHealth() const {return health;}
+    int GetMaxHealth() const {return maxHealth;}
+    int CreateCycle(int r, int w, int h, int amount, int speed);
+    void SetCurrAnim(int c) {begin = 0; currAnim = c;}
+    int GetCurrAnim() const {return currAnim;}
+    void UpdateAnimation();
 private:
     int health, maxHealth;
     struct cycle {
@@ -34,6 +31,4 @@ private:
     vector <cycle> animations;
     int currAnim;
     int begin;
-    //bool rev, nAb;
-    //int newAnim;
 };

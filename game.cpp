@@ -17,13 +17,13 @@ Game::Game() {
     running = true;
     count = 0;
     font = TTF_OpenFont("res/sans.ttf", 12);
-    loadMap("res/2.level");
+    LoadMap("res/1.level");
     speed = 4;
-    player.setDest(Width/2-40, Height/2-48, 250/4, 249/4);
-    player.setImage("res/animation.png", renderer);
-    idol = player.createCycle(1, 250, 249, 1, 20);
-    run = player.createCycle(1, 250, 249, 4, 6);
-    player.setCurrAnim(idol);
+    player.SetDest(Width/2-40, Height/2-48, 250/4, 249/4);
+    player.SetImage("res/player.png", renderer);
+    idol = player.CreateCycle(1, 250, 249, 1, 20);
+    run = player.CreateCycle(1, 250, 249, 4, 6);
+    player.SetCurrAnim(idol);
     Loop();
 }
 
@@ -65,7 +65,7 @@ void Game::Render() {
     rect.h = Height;
     SDL_RenderFillRect(renderer, &rect);
 
-    drawMap();
+    DrawMap();
     Draw(player);
 
     frameCount++;
@@ -78,9 +78,9 @@ void Game::Render() {
 }
 
 void Game::Draw(Object o) {
-    SDL_Rect dest = o.getDest();
-    SDL_Rect src = o.getSrc();
-    SDL_RenderCopyEx(renderer, o.getTex(), &src, &dest, 0, NULL, SDL_FLIP_NONE);
+    SDL_Rect dest = o.GetDest();
+    SDL_Rect src = o.GetSrc();
+    SDL_RenderCopyEx(renderer, o.GetTex(), &src, &dest, 0, NULL, SDL_FLIP_NONE);
 }
 
 void Game::Draw(const char *msg, int x, int y, int r, int g, int b) {
@@ -118,10 +118,10 @@ void Game::Input() {
             if(event.key.keysym.sym == SDLK_s) {d = 1; u = 0;}
         }
         if(event.type == SDL_KEYUP) {
-            if(event.key.keysym.sym == SDLK_a) {l = 0; player.setCurrAnim(idol);}
-            if(event.key.keysym.sym == SDLK_d) {r = 0; player.setCurrAnim(idol);}
-            if(event.key.keysym.sym == SDLK_w) {u = 0; player.setCurrAnim(idol);}
-            if(event.key.keysym.sym == SDLK_s) {d = 0; player.setCurrAnim(idol);}
+            if(event.key.keysym.sym == SDLK_a) {l = 0; player.SetCurrAnim(idol);}
+            if(event.key.keysym.sym == SDLK_d) {r = 0; player.SetCurrAnim(idol);}
+            if(event.key.keysym.sym == SDLK_w) {u = 0; player.SetCurrAnim(idol);}
+            if(event.key.keysym.sym == SDLK_s) {d = 0; player.SetCurrAnim(idol);}
         }
         SDL_GetMouseState(&mouse_x, &mouse_y);
     }
@@ -133,80 +133,80 @@ void Game::Update() {
 
     if (l) {
         tempPlayer = player;
-        tempPlayer.setDest(player.getDX() - speed, player.getDY());
+        tempPlayer.SetDest(player.GetDX() - speed, player.GetDY());
         canMove = true;
         for (auto& tile : map) {
-            if (tile.getID() == 3 && collision(tempPlayer, tile)) {
+            if (tile.GetID() == 3 && Collision(tempPlayer, tile)) {
                 canMove = false;
                 break;
             }
         }
         if (canMove) {
-            if (player.getCurrAnim() != run) player.setCurrAnim(run);
-            player.setDest(tempPlayer.getDX(), tempPlayer.getDY());
+            if (player.GetCurrAnim() != run) player.SetCurrAnim(run);
+            player.SetDest(tempPlayer.GetDX(), tempPlayer.GetDY());
         }
     }
 
     if (r) {
         tempPlayer = player;
-        tempPlayer.setDest(player.getDX() + speed, player.getDY());
+        tempPlayer.SetDest(player.GetDX() + speed, player.GetDY());
         canMove = true;
         for (auto& tile : map) {
-            if (tile.getID() == 3 && collision(tempPlayer, tile)) {
+            if (tile.GetID() == 3 && Collision(tempPlayer, tile)) {
                 canMove = false;
                 break;
             }
         }
         if (canMove) {
-            if (player.getCurrAnim() != run) player.setCurrAnim(run);
-            player.setDest(tempPlayer.getDX(), tempPlayer.getDY());
+            if (player.GetCurrAnim() != run) player.SetCurrAnim(run);
+            player.SetDest(tempPlayer.GetDX(), tempPlayer.GetDY());
         }
     }
 
     if (u) {
         tempPlayer = player;
-        tempPlayer.setDest(player.getDX(), player.getDY() - speed);
+        tempPlayer.SetDest(player.GetDX(), player.GetDY() - speed);
         canMove = true;
         for (auto& tile : map) {
-            if (tile.getID() == 3 && collision(tempPlayer, tile)) {
+            if (tile.GetID() == 3 && Collision(tempPlayer, tile)) {
                 canMove = false;
                 break;
             }
         }
         if (canMove) {
-            if (player.getCurrAnim() != run) player.setCurrAnim(run);
-            player.setDest(tempPlayer.getDX(), tempPlayer.getDY());
+            if (player.GetCurrAnim() != run) player.SetCurrAnim(run);
+            player.SetDest(tempPlayer.GetDX(), tempPlayer.GetDY());
         }
     }
 
     if (d) {
         tempPlayer = player;
-        tempPlayer.setDest(player.getDX(), player.getDY() + speed);
+        tempPlayer.SetDest(player.GetDX(), player.GetDY() + speed);
         canMove = true;
         for (auto& tile : map) {
-            if (tile.getID() == 3 && collision(tempPlayer, tile)) {
+            if (tile.GetID() == 3 && Collision(tempPlayer, tile)) {
                 canMove = false;
                 break;
             }
         }
         if (canMove) {
-            if (player.getCurrAnim() != run) player.setCurrAnim(run);
-            player.setDest(tempPlayer.getDX(), tempPlayer.getDY());
+            if (player.GetCurrAnim() != run) player.SetCurrAnim(run);
+            player.SetDest(tempPlayer.GetDX(), tempPlayer.GetDY());
         }
     }
 
-    SDL_Rect finalDest = player.getDest();
-    if (finalDest.x < 140) { player.setDest(140, finalDest.y); scroll(speed, 0); }
-    if (finalDest.x > Width - 200) { player.setDest(Width - 200, finalDest.y); scroll(-speed, 0); }
-    if (finalDest.y < 220) { player.setDest(finalDest.x, 220); scroll(0, speed); }
-    if (finalDest.y > Height - 260) { player.setDest(finalDest.x, Height - 260); scroll(0, -speed); }
+    SDL_Rect finalDest = player.GetDest();
+    if (finalDest.x < 140) { player.SetDest(140, finalDest.y); Scroll(speed, 0); }
+    if (finalDest.x > Width - 200) { player.SetDest(Width - 200, finalDest.y); Scroll(-speed, 0); }
+    if (finalDest.y < 220) { player.SetDest(finalDest.x, 220); Scroll(0, speed); }
+    if (finalDest.y > Height - 260) { player.SetDest(finalDest.x, Height - 260); Scroll(0, -speed); }
 
-    player.updateAnimation();
+    player.UpdateAnimation();
 }
 
-void Game::loadMap(const char *filename) {
+void Game::LoadMap(const char *filename) {
     Object temp;
-    temp.setImage("res/colors.png", renderer);
+    temp.SetImage("res/colors_25px.png", renderer);
     int current, mx, my, mw, mh;
     ifstream in(filename);
     if(!in.is_open()) {
@@ -225,11 +225,11 @@ void Game::loadMap(const char *filename) {
             }
             in >> current;
             if(current != 0) {
-                temp.setSolid(1);
-                temp.setSrc((current-1)*Tile_size, 0, Tile_size, Tile_size);
-                temp.setDest(j * Tile_size + mx, i * Tile_size + my, Tile_size, Tile_size);
-                temp.setID(current);              
-                if(current == 3) temp.setSolid(0);
+                temp.SetSolid(1);
+                temp.SetSrc((current-1)*Tile_size, 0, Tile_size, Tile_size);
+                temp.SetDest(j * Tile_size + mx, i * Tile_size + my, Tile_size, Tile_size);
+                temp.SetID(current);              
+                if(current == 3) temp.SetSolid(0);
                 map.push_back(temp);
             }
         }
@@ -237,10 +237,10 @@ void Game::loadMap(const char *filename) {
     in.close();
 }
 
-void Game::drawMap() {
+void Game::DrawMap() {
     for (int i = 0; i < map.size(); i++) {
-        int dx = map[i].getDX();
-        int dy = map[i].getDY();
+        int dx = map[i].GetDX();
+        int dy = map[i].GetDY();
 
         bool visible = dx + Tile_size >= 0 &&
                        dy + Tile_size >= 0 &&
@@ -253,14 +253,14 @@ void Game::drawMap() {
     }
 }
 
-void Game::scroll(int x, int y) {
+void Game::Scroll(int x, int y) {
     for (int i = 0; i < map.size(); i++) {
-        map[i].setDest(map[i].getDX() + x, map[i].getDY() + y);
+        map[i].SetDest(map[i].GetDX() + x, map[i].GetDY() + y);
     }
 }
 
-bool Game::collision(Object a, Object b) {
-    if((a.getDX() < (b.getDX() + b.getDW())) && ((a.getDX() + a.getDW()) > b.getDX()) && (a.getDY() < (b.getDY() + b.getDH())) && ((a.getDY() + a.getDH()) > b.getDY())) {
+bool Game::Collision(Object a, Object b) {
+    if((a.GetDX() < (b.GetDX() + b.GetDW())) && ((a.GetDX() + a.GetDW()) > b.GetDX()) && (a.GetDY() < (b.GetDY() + b.GetDH())) && ((a.GetDY() + a.GetDH()) > b.GetDY())) {
         return true;
     } else {
         return false;
