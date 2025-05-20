@@ -3,6 +3,8 @@
 #include "object.h"
 #include "audio.h"
 #include "entity.h"
+#include "player.h"
+#include "menu.h"
 #include </opt/homebrew/include/SDL2/SDL.h>
 #include </opt/homebrew/include/SDL2/SDL_image.h>
 #include </opt/homebrew/include/SDL2/SDL_ttf.h>
@@ -38,11 +40,12 @@ private:
     int count;
     int frameCount, timerFPS, lastFrame;
     int mouse_x, mouse_y;
-    Entity player;
+    Player player;
     vector<Object> map;
     int mapX, mapY;
-    int speed;
+    int playerSpeed;
     bool l=0, r=0, u=0, d=0;
     int idol, run;
     bool canMove;
+    Menu menu;
 };

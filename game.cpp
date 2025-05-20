@@ -18,12 +18,14 @@ Game::Game() {
     count = 0;
     font = TTF_OpenFont("res/sans.ttf", 12);
     LoadMap("res/1.level");
-    speed = 4;
+    playerSpeed = 4;
     player.SetDest(Width/2-40, Height/2-48, 250/4, 249/4);
-    player.SetImage("res/player.png", renderer);
+    player.SetImage("res/player_r.png", renderer);
+    
     idol = player.CreateCycle(1, 250, 249, 1, 20);
     run = player.CreateCycle(1, 250, 249, 4, 6);
     player.SetCurrAnim(idol);
+    
     Loop();
 }
 
@@ -38,22 +40,21 @@ Game::~Game() {
 }
 
 void Game::Loop() {
-    SDL_Event event;
     static int lastTime = 0;
     while (running) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false;
-            }
-        }
-        lastFrame = SDL_GetTicks();
-        if(lastFrame >= (lastTime + 1000)) {
-            lastTime = lastFrame;
-            frameCount = 0;
-        }
-        Render();
         Input();
-        Update();
+        
+        // Only update game state if not paused
+        if (!menu.IsPaused()) {
+            lastFrame = SDL_GetTicks();
+            if(lastFrame >= (lastTime + 1000)) {
+                lastTime = lastFrame;
+                frameCount = 0;
+            }
+            Update();
+        }
+        
+        Render();
     }
 }
 
@@ -67,6 +68,39 @@ void Game::Render() {
 
     DrawMap();
     Draw(player);
+
+    // Display player stats in the top-left corner
+    char scoreText[50];
+    snprintf(scoreText, sizeof(scoreText), "Score: %d", player.GetScore());
+    Draw(scoreText, 20, 20, 255, 255, 255);
+    
+    char livesText[50];
+    snprintf(livesText, sizeof(livesText), "Lives: %d", player.GetLives());
+    Draw(livesText, 20, 50, 255, 255, 255);
+    
+    char healthText[50];
+    snprintf(healthText, sizeof(healthText), "Health: %d/%d", player.GetHealth(), player.GetMaxHealth());
+    
+    // Determine health text color based on health percentage
+    int healthPercentage = (player.GetHealth() * 100) / player.GetMaxHealth();
+    int r, g, b;
+
+    if (healthPercentage > 70) {
+        // Green for high health
+        r = 0; g = 255; b = 0;
+    } else if (healthPercentage > 30) {
+        // Yellow for medium health
+        r = 255; g = 255; b = 0;
+    } else {
+        // Red for low health
+        r = 255; g = 0; b = 0;
+    }
+
+    Draw(healthText, 20, 80, r, g, b);
+
+        char pauseText[50];
+        snprintf(pauseText, sizeof(pauseText), "Press P to pause/unpause game");
+        Draw(pauseText, 20, 110, 255, 255, 255);
 
     frameCount++;
     int timerFPS = SDL_GetTicks() - lastFrame;
@@ -91,13 +125,16 @@ void Game::Draw(const char *msg, int x, int y, int r, int g, int b) {
     color.g = g;
     color.b = b;
     color.a = 255;
-    SDL_Rect rect;
+    
     surf = TTF_RenderText_Solid(font, msg, color);
     tex = SDL_CreateTextureFromSurface(renderer, surf);
+    
+    SDL_Rect rect;
     rect.x = x;
     rect.y = y;
-    rect.w = surf -> w;
-    rect.h = surf -> h;
+    rect.w = surf->w;
+    rect.h = surf->h;
+    
     SDL_FreeSurface(surf);
     SDL_RenderCopy(renderer, tex, NULL, &rect);
     SDL_DestroyTexture(tex);
@@ -116,6 +153,11 @@ void Game::Input() {
             if(event.key.keysym.sym == SDLK_d) {r = 1; l = 0;}
             if(event.key.keysym.sym == SDLK_w) {u = 1; d = 0;}
             if(event.key.keysym.sym == SDLK_s) {d = 1; u = 0;}
+            
+            // Toggle pause when P is pressed
+            if(event.key.keysym.sym == SDLK_p) {
+                menu.TogglePause();
+            }
         }
         if(event.type == SDL_KEYUP) {
             if(event.key.keysym.sym == SDLK_a) {l = 0; player.SetCurrAnim(idol);}
@@ -133,42 +175,53 @@ void Game::Update() {
 
     if (l) {
         tempPlayer = player;
-        tempPlayer.SetDest(player.GetDX() - speed, player.GetDY());
+        tempPlayer.SetDest(player.GetDX() - playerSpeed, player.GetDY());
         canMove = true;
         for (auto& tile : map) {
-            if (tile.GetID() == 3 && Collision(tempPlayer, tile)) {
+            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(tempPlayer, tile)) {
                 canMove = false;
                 break;
             }
         }
         if (canMove) {
-            if (player.GetCurrAnim() != run) player.SetCurrAnim(run);
+            if (player.GetCurrAnim() != run){
+                player.SetImage("res/player_l.png", renderer);
+                player.SetCurrAnim(run);
+            } else {
+                player.SetImage("res/player_l.png", renderer);
+            }
             player.SetDest(tempPlayer.GetDX(), tempPlayer.GetDY());
         }
     }
 
     if (r) {
         tempPlayer = player;
-        tempPlayer.SetDest(player.GetDX() + speed, player.GetDY());
+        tempPlayer.SetImage("res/player_r.png", renderer);
+        tempPlayer.SetDest(player.GetDX() + playerSpeed, player.GetDY());
         canMove = true;
         for (auto& tile : map) {
-            if (tile.GetID() == 3 && Collision(tempPlayer, tile)) {
+            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(tempPlayer, tile)) {
                 canMove = false;
                 break;
             }
         }
         if (canMove) {
-            if (player.GetCurrAnim() != run) player.SetCurrAnim(run);
+            if (player.GetCurrAnim() != run){
+                player.SetImage("res/player_r.png", renderer);
+                player.SetCurrAnim(run);
+            } else {
+                player.SetImage("res/player_r.png", renderer);
+            }
             player.SetDest(tempPlayer.GetDX(), tempPlayer.GetDY());
         }
     }
 
     if (u) {
         tempPlayer = player;
-        tempPlayer.SetDest(player.GetDX(), player.GetDY() - speed);
+        tempPlayer.SetDest(player.GetDX(), player.GetDY() - playerSpeed);
         canMove = true;
         for (auto& tile : map) {
-            if (tile.GetID() == 3 && Collision(tempPlayer, tile)) {
+            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(tempPlayer, tile)) {
                 canMove = false;
                 break;
             }
@@ -181,10 +234,10 @@ void Game::Update() {
 
     if (d) {
         tempPlayer = player;
-        tempPlayer.SetDest(player.GetDX(), player.GetDY() + speed);
+        tempPlayer.SetDest(player.GetDX(), player.GetDY() + playerSpeed);
         canMove = true;
         for (auto& tile : map) {
-            if (tile.GetID() == 3 && Collision(tempPlayer, tile)) {
+            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(tempPlayer, tile)) {
                 canMove = false;
                 break;
             }
@@ -196,10 +249,10 @@ void Game::Update() {
     }
 
     SDL_Rect finalDest = player.GetDest();
-    if (finalDest.x < 140) { player.SetDest(140, finalDest.y); Scroll(speed, 0); }
-    if (finalDest.x > Width - 200) { player.SetDest(Width - 200, finalDest.y); Scroll(-speed, 0); }
-    if (finalDest.y < 220) { player.SetDest(finalDest.x, 220); Scroll(0, speed); }
-    if (finalDest.y > Height - 260) { player.SetDest(finalDest.x, Height - 260); Scroll(0, -speed); }
+    if (finalDest.x < 140) { player.SetDest(140, finalDest.y); Scroll(playerSpeed, 0); }
+    if (finalDest.x > Width - 200) { player.SetDest(Width - 200, finalDest.y); Scroll(-playerSpeed, 0); }
+    if (finalDest.y < 220) { player.SetDest(finalDest.x, 220); Scroll(0, playerSpeed); }
+    if (finalDest.y > Height - 260) { player.SetDest(finalDest.x, Height - 260); Scroll(0, -playerSpeed); }
 
     player.UpdateAnimation();
 }
