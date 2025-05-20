@@ -58,7 +58,7 @@ void Game::InitEnemies() {
     enemy1.SetSrc(0, 0, 900, 381); // Set source rectangle for enemy1
     enemies->push_back(enemy1);
     
-    /*
+    
     Enemy enemy2;
     enemy2.SetImage("res/enemy.png", renderer);
     enemy2.SetDest(Width/2+400, Height/2+8, 900/5, 381/5);
@@ -70,7 +70,7 @@ void Game::InitEnemies() {
     enemy3.SetDest(Width/2+400, Height/2+58, 900/5, 381/5);
     enemy3.SetSrc(0, 0, 900, 381); // Set source rectangle for enemy3
     enemies->push_back(enemy3);
-    */
+    
 }
 
 void Game::Loop() {
@@ -104,9 +104,7 @@ void Game::Render() {
     Draw(player);
     
     // Draw enemies
-    for (auto& enemy : *enemies) {
-        Draw(enemy);
-    }
+    
 
     // Display player stats in the top-left corner
     char scoreText[50];
@@ -145,6 +143,20 @@ void Game::Render() {
     int timerFPS = SDL_GetTicks() - lastFrame;
     if(timerFPS < (1000/60)) {
         SDL_Delay((1000/60) - timerFPS);
+    }
+
+    if (enemies && !enemies->empty()) {
+        for (auto& enemy : *enemies) {
+            // Draw the enemy
+            Draw(enemy);
+            
+            // Create health text
+            char healthText[20];
+            snprintf(healthText, sizeof(healthText), "HP: %d", enemy.GetHealth());
+            
+            // Position text at the upper-right corner of the enemy
+            Draw(healthText, enemy.GetDX() + enemy.GetDW() - 50, enemy.GetDY(), 255, 255, 255);
+        }
     }
 
     SDL_RenderPresent(renderer);
@@ -196,6 +208,13 @@ void Game::Input() {
             // Toggle pause when P is pressed
             if(event.key.keysym.sym == SDLK_p) {
                 menu.TogglePause();
+            }
+            if(event.key.keysym.sym == SDLK_SPACE) {
+                for (auto& enemy : *enemies) {
+                    if (player.EnemyIsInRange(enemy.GetDX(), enemy.GetDY())) {
+                        player.AttackEnemy(enemy, 10);
+                    }
+                }
             }
         }
         if(event.type == SDL_KEYUP) {
@@ -297,26 +316,50 @@ void Game::Update() {
     
     // Update enemies
     if (enemies && !enemies->empty()) {
-        for (auto& enemy : *enemies) {
+        // Use an iterator to safely remove enemies while iterating
+        auto it = enemies->begin();
+        while (it != enemies->end()) {
             // Calculate distance to player
-            float dx = player.GetDX() - enemy.GetDX();
-            float dy = player.GetDY() - enemy.GetDY();
+            float dx = player.GetDX() - it->GetDX();
+            float dy = player.GetDY() - it->GetDY();
             float distance = sqrt(dx*dx + dy*dy);
             
             // Update the attack cooldown
-            enemy.UpdateCooldown();
+            it->UpdateCooldown();
             
             // If player is in range, attack
-            if (enemy.IsInRange(player.GetDX(), player.GetDY())) {
+            if (it->IsInRange(player.GetDX(), player.GetDY())) {
                 // Try to attack - the Attack method will check cooldown internally
-                enemy.Attack(player, 10);
+                it->Attack(player, 10);
             } else {
                 // Move towards player
-                enemy.MoveTowards(player.GetDX(), player.GetDY());
+                it->MoveTowards(player.GetDX(), player.GetDY());
+            }
+            
+            // Check if enemy's health is zero or less
+            if (it->GetHealth() <= 0) {
+                // Add score before removing the enemy
+                player.AddScore(100);
+                
+                // Remove the enemy and update the iterator
+                it = enemies->erase(it);
+                
+                // Debug output
+                std::cout << "Enemy defeated! Score: " << player.GetScore() << std::endl;
+            } else {
+                // Only increment the iterator if we didn't remove the current enemy
+                ++it;
             }
         }
     }
-}
+
+    
+
+    if (!player.IsAlive()) {
+        running = false;
+        std::cout << "Game Over! You have no lives left." << std::endl;
+    }
+}       
 
 void Game::LoadMap(const char *filename) {
     Object temp;

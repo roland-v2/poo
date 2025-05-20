@@ -1,7 +1,6 @@
 #pragma once
 
 #include "entity.h"
-#include "player.h"
 #include </opt/homebrew/include/SDL2/SDL.h>
 #include </opt/homebrew/include/SDL2/SDL_image.h>
 #include </opt/homebrew/include/SDL2/SDL_ttf.h>
@@ -10,10 +9,17 @@
 #include <vector>
 #include <string>
 
+// Forward declaration
+class Player;
+
 class Enemy : public Entity {
 public:
     Enemy();
     ~Enemy();
+    
+    // Copy constructor and assignment operator
+    Enemy(const Enemy& other);
+    Enemy& operator=(const Enemy& other);
     
     bool IsInRange(int x, int y);
     void SetRange(int r) { range = r; }
@@ -26,12 +32,14 @@ public:
     void ResetAttackCooldown();
     void UpdateCooldown();
 
+    void TakeDamageE(int amount);
+
 private:
-    int range; // Attack range
+    int range;    
     int amount;
-    
-    // Cooldown variables
     Uint32 lastAttackTime;
-    const Uint32 attackCooldown = 2000; // 2 seconds in milliseconds
+    // Make this static const instead of instance const
+    static const Uint32 ATTACK_COOLDOWN = 2000;    
     bool attackReady;
+    int life;
 };

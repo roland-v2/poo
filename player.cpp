@@ -1,6 +1,7 @@
 #include "player.h"
+#include "enemy.h" // Include enemy.h in the implementation file
 
-Player::Player() : score(0), lives(3) {
+Player::Player() : score(0), lives(3), rangePlayer(100) {
     SetHealth(100);
     SetMaxHealth(100);
 }
@@ -45,7 +46,21 @@ void Player::TakeDamage(int amount) {
     
     // Check if health is depleted
     if (GetHealth() <= 0) {
-        SetHealth(0); // Don't go below zero
+        SetHealth(0); // Don't go below zero 
         LoseLife();
     }
+}
+
+void Player::AttackEnemy(Enemy &target, int amount) {
+    if (EnemyIsInRange(target.GetDX(), target.GetDY())) {
+        target.TakeDamageE(amount);
+    }
+}
+
+bool Player::EnemyIsInRange(int x, int y) {
+    int dx = GetDX() - x;
+    int dy = GetDY() - y;
+    double distance = sqrt(dx * dx + dy * dy);
+    
+    return distance <= rangePlayer;
 }

@@ -8,11 +8,14 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cmath>
+
+// Forward declaration
+class Enemy;
 
 class Player : public Entity {
 public:
     Player();
-    ~Player() = default;
     
     // Score methods
     void AddScore(int points);
@@ -25,13 +28,16 @@ public:
     void LoseLife();
     bool IsAlive() const;
     
-    // Health methods
+    // Health/damage methods
     void TakeDamage(int amount);
     
-private:
-    // Score
-    int score;
+    void AttackEnemy(Enemy &target, int amount);
+    bool EnemyIsInRange(int x, int y);
+    void SetRange(int r) { rangePlayer = r; }
+    int GetRange() const { return rangePlayer; }
     
-    // Lives
+private:
+    int score;
     int lives;
+    int rangePlayer;
 };
