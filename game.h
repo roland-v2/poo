@@ -5,6 +5,7 @@
 #include "entity.h"
 #include "player.h"
 #include "menu.h"
+#include "enemy.h"
 #include </opt/homebrew/include/SDL2/SDL.h>
 #include </opt/homebrew/include/SDL2/SDL_image.h>
 #include </opt/homebrew/include/SDL2/SDL_ttf.h>
@@ -48,4 +49,6 @@ private:
     int idol, run;
     bool canMove;
     Menu menu;
+    std::vector<Enemy>* enemies; // Pointer to vector instead of direct vector
+    void InitEnemies();
 };

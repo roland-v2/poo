@@ -25,11 +25,19 @@ Game::Game() {
     idol = player.CreateCycle(1, 250, 249, 1, 20);
     run = player.CreateCycle(1, 250, 249, 4, 6);
     player.SetCurrAnim(idol);
+
+    // Initialize enemies pointer
+    enemies = new std::vector<Enemy>();
+    
+    InitEnemies(); // Initialize enemies here
     
     Loop();
 }
 
 Game::~Game() {
+    // Delete the enemies vector
+    delete enemies;
+    
     TTF_CloseFont(font);
     TTF_Quit();
     SDL_DestroyRenderer(renderer);
@@ -37,6 +45,32 @@ Game::~Game() {
     IMG_Quit();
     TTF_Quit();
     SDL_Quit();
+}
+
+void Game::InitEnemies() {
+    // Clear existing enemies
+    enemies->clear();
+    
+    // Add new enemies
+    Enemy enemy1;
+    enemy1.SetImage("res/enemy.png", renderer);
+    enemy1.SetDest(Width/2+700, Height/2-48, 900/5, 381/5);
+    enemy1.SetSrc(0, 0, 900, 381); // Set source rectangle for enemy1
+    enemies->push_back(enemy1);
+    
+    /*
+    Enemy enemy2;
+    enemy2.SetImage("res/enemy.png", renderer);
+    enemy2.SetDest(Width/2+400, Height/2+8, 900/5, 381/5);
+    enemy2.SetSrc(0, 0, 900, 381); // Set source rectangle for enemy2
+    enemies->push_back(enemy2);
+
+    Enemy enemy3;
+    enemy3.SetImage("res/enemy.png", renderer);
+    enemy3.SetDest(Width/2+400, Height/2+58, 900/5, 381/5);
+    enemy3.SetSrc(0, 0, 900, 381); // Set source rectangle for enemy3
+    enemies->push_back(enemy3);
+    */
 }
 
 void Game::Loop() {
@@ -68,6 +102,11 @@ void Game::Render() {
 
     DrawMap();
     Draw(player);
+    
+    // Draw enemies
+    for (auto& enemy : *enemies) {
+        Draw(enemy);
+    }
 
     // Display player stats in the top-left corner
     char scoreText[50];
@@ -255,6 +294,28 @@ void Game::Update() {
     if (finalDest.y > Height - 260) { player.SetDest(finalDest.x, Height - 260); Scroll(0, -playerSpeed); }
 
     player.UpdateAnimation();
+    
+    // Update enemies
+    if (enemies && !enemies->empty()) {
+        for (auto& enemy : *enemies) {
+            // Calculate distance to player
+            float dx = player.GetDX() - enemy.GetDX();
+            float dy = player.GetDY() - enemy.GetDY();
+            float distance = sqrt(dx*dx + dy*dy);
+            
+            // Update the attack cooldown
+            enemy.UpdateCooldown();
+            
+            // If player is in range, attack
+            if (enemy.IsInRange(player.GetDX(), player.GetDY())) {
+                // Try to attack - the Attack method will check cooldown internally
+                enemy.Attack(player, 10);
+            } else {
+                // Move towards player
+                enemy.MoveTowards(player.GetDX(), player.GetDY());
+            }
+        }
+    }
 }
 
 void Game::LoadMap(const char *filename) {
@@ -309,6 +370,11 @@ void Game::DrawMap() {
 void Game::Scroll(int x, int y) {
     for (int i = 0; i < map.size(); i++) {
         map[i].SetDest(map[i].GetDX() + x, map[i].GetDY() + y);
+    }
+    
+    // Scroll enemies too
+    for (auto& enemy : *enemies) {
+        enemy.SetDest(enemy.GetDX() + x, enemy.GetDY() + y);
     }
 }
 
