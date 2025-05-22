@@ -8,7 +8,7 @@
 #include "menu.h"
 #include "enemy.h"
 #include "key.h"
-#include "bossEnemy.h"
+#include "boss_enemy.h"
 #include "libs/SDL2/include/SDL.h"
 #include "libs/SDL2/include/SDL_image.h"
 #include "libs/SDL2/include/SDL_ttf.h"
@@ -17,11 +17,11 @@
 #include <fstream>
 #include <vector>
 
-namespace OOPGame {
+namespace OOP_Game {
     // Define constants for the game
-    static constexpr int Width = 1280;
-    static constexpr int Height = 720;
-    static constexpr int Tile_size = 25;
+    static constexpr int width = 1280;
+    static constexpr int height = 720;
+    static constexpr int tile_size = 25;
 
     class Game {
     public:
@@ -49,39 +49,39 @@ namespace OOPGame {
     private:
         // Game attributes
         // SDL attributes
-        SDL_Renderer *renderer;
-        SDL_Window *window;
-        TTF_Font *font;
-        
+        SDL_Renderer *m_renderer;
+        SDL_Window *m_window;
+        TTF_Font *m_font;
+
         // Game objects
-        int frameCount, lastFrame;
+        int m_frame_count, m_last_frame;
 
         // Player attributes
-        Player player;
-        int playerSpeed;
-        bool l=0, r=0, u=0, d=0;
-        int idol, run;
+        Player m_player;
+        int m_player_speed;
+        bool m_l=0, m_r=0, m_u=0, m_d=0;
+        int m_idle, m_run;
 
         // Map attributes
-        vector<Object> map;
-        int mapX, mapY;
+        vector<Object> m_map;
+        int m_map_x, m_map_y;
 
         // Menu attributes
-        Menu menu;
+        Menu m_menu;
 
         // Enemy/boss attributes
-        std::vector<Enemy>* enemies;
-        std::vector<BossEnemy>* bossEnemies;
+        std::vector<Enemy>* m_enemies;
+        std::vector<BossEnemy>* m_boss_enemies;
         void InitEnemies();
         void InitBoss();
-        float enemySpeed;
-        float bossSpeed;
-        bool bossSpawnedInGame = false;
+        float m_enemy_speed;
+        float m_boss_speed;
+        bool m_boss_spawned_in_game = false;
 
         // Game key attributes
-        Key gameKey;
+        Key m_game_key;
 
         // Audio attributes
-        Audio gameOver;
+        Audio m_game_over;
     };
 }

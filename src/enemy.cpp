@@ -3,14 +3,14 @@
 #include <cmath>
 #include "libs/SDL2/include/SDL.h"
 
-namespace OOPGame {
+namespace OOP_Game {
     // Default initialization of enemy attributes
     Enemy::Enemy() :
-        range(25),
-        amount(10),
-        attackReady(true),
-        life(50),
-        lastAttackTime(0)
+        m_range(25),
+        m_amount(10),
+        m_attack_ready(true),
+        m_life(50),
+        m_last_attack_time(0)
     {
         SetHealth(50);
         SetMaxHealth(50);
@@ -19,11 +19,11 @@ namespace OOPGame {
     // Implement copy constructor
     // This constructor initializes the enemy with the same attributes as another enemy at creation
     Enemy::Enemy(const Enemy& other) : Entity(other) {
-        range = other.range;
-        amount = other.amount;
-        lastAttackTime = other.lastAttackTime;
-        attackReady = other.attackReady;
-        life = other.life;
+        m_range = other.m_range;
+        m_amount = other.m_amount;
+        m_last_attack_time = other.m_last_attack_time;
+        m_attack_ready = other.m_attack_ready;
+        m_life = other.m_life;
     }
 
     // Implement copy assignment operator
@@ -31,11 +31,11 @@ namespace OOPGame {
     Enemy& Enemy::operator=(const Enemy& other) {
         if (this != &other) {
             Entity::operator=(other);
-            range = other.range;
-            amount = other.amount;
-            lastAttackTime = other.lastAttackTime;
-            attackReady = other.attackReady;
-            life = other.life;
+            m_range = other.m_range;
+            m_amount = other.m_amount;
+            m_last_attack_time = other.m_last_attack_time;
+            m_attack_ready = other.m_attack_ready;
+            m_life = other.m_life;
         }
         return *this;
     }
@@ -47,24 +47,24 @@ namespace OOPGame {
         // Calculate distance using Pythagorean theorem
         double distance = sqrt(dx * dx + dy * dy);
         // Check if distance is within the attack range
-        return distance <= range;
+        return distance <= m_range;
     }
 
     // Reset the attack cooldown
     void Enemy::ResetAttackCooldown() {
         // Set the last attack time to the current time
-        lastAttackTime = SDL_GetTicks();
-        attackReady = false;
+        m_last_attack_time = SDL_GetTicks();
+        m_attack_ready = false;
     }
 
     // Update cooldown status
     void Enemy::UpdateCooldown() {
         // If not ready to attack, check if cooldown has expired
-        if (!attackReady) {
+        if (!m_attack_ready) {
             // Get the current time
-            Uint32 currentTime = SDL_GetTicks();
-            if (currentTime - lastAttackTime >= ATTACK_COOLDOWN) {
-                attackReady = true;
+            Uint32 current_time = SDL_GetTicks();
+            if (current_time - m_last_attack_time >= m_attack_cooldown) {
+                m_attack_ready = true;
             }
         }
     }
@@ -82,13 +82,13 @@ namespace OOPGame {
             dx /= distance;
             dy /= distance;
             // Move toward target at a fixed speed
-            float moveSpeed = speed;
+            float move_speed = speed;
             // Calculate new position
             // Use static_cast to convert float to int for position
-            int newX = GetDX() + static_cast<int>(dx * moveSpeed);
-            int newY = GetDY() + static_cast<int>(dy * moveSpeed);
+            int new_x = GetDX() + static_cast<int>(dx * move_speed);
+            int new_y = GetDY() + static_cast<int>(dy * move_speed);
             // Update position
-            SetDest(newX, newY, GetDW(), GetDH());
+            SetDest(new_x, new_y, GetDW(), GetDH());
         }
     }
 
@@ -110,13 +110,13 @@ namespace OOPGame {
     // Take damage method
     void Enemy::TakeDamage(int amount) {
         // Reduce health by amount
-        int newHealth = GetHealth() - amount;
+        int new_health = GetHealth() - amount;
         // Ensure health does not go below zero
-        SetHealth(newHealth > 0 ? newHealth : 0);
+        SetHealth(new_health > 0 ? new_health : 0);
     }
 
     // Overloading + operator
-    int operator+(const Enemy& lhs, const Enemy& rhs) {
-        return lhs.GetHealth() + rhs.GetHealth();
+    int operator+(const Enemy& enemy1_health, const Enemy& enemy2_health) {
+        return enemy1_health.GetHealth() + enemy2_health.GetHealth();
     }
 }

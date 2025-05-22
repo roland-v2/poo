@@ -1,6 +1,6 @@
-#include "include/bossEnemy.h"
+#include "include/boss_enemy.h"
 
-namespace OOPGame {
+namespace OOP_Game {
     // Default boss initialization
     BossEnemy::BossEnemy() {
         SetHealth(500);
@@ -11,9 +11,9 @@ namespace OOPGame {
     // Damage method to handle boss damage
     void BossEnemy::TakeDamage(int amount) {
         // Reduce health by amount
-        int newHealth = GetHealth() - amount;
+        int new_health = GetHealth() - amount;
         // Ensure health does not go below zero
-        SetHealth(newHealth > 0 ? newHealth : 0);
+        SetHealth(new_health > 0 ? new_health : 0);
     }
 
     // EndGame method to play the game over sound

@@ -4,7 +4,7 @@
 #include "libs/SDL2/include/SDL_mixer.h"
 #include <iostream>
 
-namespace OOPGame {
+namespace OOP_Game {
     class Audio {
     public:
         // Destructor
@@ -17,9 +17,9 @@ namespace OOPGame {
         void Play();
     private:
         // SDL audio specifications
-        SDL_AudioSpec waveSpec;
-        Uint32 waveLength;
-        Uint8 *waveBuffer;
-        SDL_AudioDeviceID deviceID;
+        SDL_AudioSpec m_wave_spec;
+        Uint32 m_wave_length;
+        Uint8 *m_wave_buffer;
+        SDL_AudioDeviceID m_device_ID;
     };
 }

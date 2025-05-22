@@ -4,7 +4,7 @@
 #include "enemy.h"
 #include <vector>
 
-namespace OOPGame {
+namespace OOP_Game {
     // Key class inherits from Object
     class Key : public Object {
     public:
@@ -15,17 +15,17 @@ namespace OOPGame {
         bool AllEnemiesDead(const vector<Enemy>& enemies) const;
 
         // Spawn key methods
-        void Despawn() { spawned = false; }
-        void SetSpawn(bool spawn) { spawned = spawn; }
-        bool GetSpawn() const { return spawned; }
+        void Despawn() { m_spawned = false; }
+        void SetSpawn(bool spawn) { m_spawned = spawn; }
+        bool GetSpawn() const { return m_spawned; }
 
         // Picked up methods
-        void SetPickedUp(bool pickedUp) { isPickedUp = pickedUp; }
-        bool GetPickedUp() const { return isPickedUp; }
+        void SetPickedUp(bool pickedUp) { m_is_picked_up = pickedUp; }
+        bool GetPickedUp() const { return m_is_picked_up; }
 
     private:
         // Key attributes
-        bool spawned;
-        bool isPickedUp;
+        bool m_spawned;
+        bool m_is_picked_up;
     };
 }

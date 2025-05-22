@@ -1,8 +1,8 @@
 #include "include/player.h"
 
-namespace OOPGame {
+namespace OOP_Game {
     // Initializes default player attributes
-    Player::Player() : score(0), lives(3), rangePlayer(100), damage(15) {
+    Player::Player() : m_score(0), m_lives(3), m_range_player(100), m_damage(15) {
         SetHealth(100);
         SetMaxHealth(100);
     }
@@ -10,9 +10,9 @@ namespace OOPGame {
     // Lives method
     void Player::LoseLife() {
         // Number of lives drops by one
-        lives--;
+        m_lives--;
         // Check if player is still alive
-        if (lives > 0) {
+        if (m_lives > 0) {
             // Sets player's current life to max
             SetHealth(GetMaxHealth());
         }
@@ -60,7 +60,7 @@ namespace OOPGame {
         // Calculate the distance to the enemy
         double distance = sqrt(dx * dx + dy * dy);
         // Check if the distance is within the player's range
-        return distance <= rangePlayer;
+        return distance <= m_range_player;
     }
 
     //overloading << operator

@@ -1,8 +1,8 @@
-#include "include/key.h"
+#include "include/key.h" 
 
-namespace OOPGame {
+namespace OOP_Game {
     // Constructor
-    Key::Key() : spawned(false), isPickedUp(false) {}
+    Key::Key() : m_spawned(false), m_is_picked_up(false) {}
 
     // Check if all enemies are dead
     bool Key::AllEnemiesDead(const std::vector<Enemy>& enemies) const {

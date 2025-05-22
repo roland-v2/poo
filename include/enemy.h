@@ -2,7 +2,7 @@
 
 #include "entity.h"
 
-namespace OOPGame {
+namespace OOP_Game {
     // Forward declaration
     class Player;
 
@@ -18,10 +18,10 @@ namespace OOPGame {
         
         // Range and attack methods
         bool IsInRange(int x, int y);
-        void SetRange(int r) { range = r; }
-        int GetRange() const { return range; }
+        void SetRange(int r) { m_range = r; }
+        int GetRange() const { return m_range; }
         void Attack(Player &target, int amount);
-        bool CanAttack() const { return attackReady; }
+        bool CanAttack() const { return m_attack_ready; }
 
         // Cooldown method
         void UpdateCooldown();
@@ -34,16 +34,16 @@ namespace OOPGame {
         void TakeDamage(int amount) override;
 
         // Overloading + operator
-        friend int operator+(const Enemy& lhs, const Enemy& rhs);
+        friend int operator+(const Enemy& enemy1_health, const Enemy& enemy2_health);
     private:
         // Enemy attributes
-        int range;    
-        int amount;
-        bool attackReady;
-        int life;
+        int m_range;    
+        int m_amount;
+        bool m_attack_ready;
+        int m_life;
         // Last attack time
-        Uint32 lastAttackTime;
+        Uint32 m_last_attack_time;
         // Attack cooldown in milliseconds
-        static const Uint32 ATTACK_COOLDOWN = 2000;    
+        static const Uint32 m_attack_cooldown = 2000;    
     };
 }

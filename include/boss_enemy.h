@@ -3,7 +3,7 @@
 #include "enemy.h"
 #include "audio.h"
 
-namespace OOPGame {
+namespace OOP_Game {
     // BossEnemy class inherits from Enemy
     class BossEnemy : public Enemy {
     public:

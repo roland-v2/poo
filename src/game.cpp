@@ -1,5 +1,5 @@
 #include "include/game.h"
-using namespace OOPGame;
+using namespace OOP_Game;
 
 // Constructor
 Game::Game() {
@@ -10,49 +10,49 @@ Game::Game() {
     }
 
     // Create SDL window and renderer
-    if (SDL_CreateWindowAndRenderer(Width, Height, 0, &window, &renderer) != 0) {
+    if (SDL_CreateWindowAndRenderer(width, height, 0, &m_window, &m_renderer) != 0) {
         std::cerr << "Window and renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return;
     }
     
     // Set window title
-    SDL_SetWindowTitle(window, "Game Window");
-    SDL_ShowWindow(window);
+    SDL_SetWindowTitle(m_window, "Game Window");
+    SDL_ShowWindow(m_window);
     // Initialize font
     TTF_Init();
-    font = TTF_OpenFont("res/sans.ttf", 12);
+    m_font = TTF_OpenFont("res/sans.ttf", 12);
 
     // Load map from file (matrix of tiles)
     LoadMap("res/1.level");
 
     // Entities have predetermined speeds
-    playerSpeed = 4;
-    enemySpeed = 1.5f;
-    bossSpeed = 2.0f;
+    m_player_speed = 4;
+    m_enemy_speed = 1.5f;
+    m_boss_speed = 2.0f;
 
     // Set player position and texture
-    player.SetDest(Width/2-40, Height/2-48, 250/4, 249/4);
-    player.SetImage("res/player_r.png", renderer);
-    
+    m_player.SetDest(width/2-40, height/2-48, 250/4, 249/4);
+    m_player.SetImage("res/player_r.png", m_renderer);
+
     // Set up player animations
-    idol = player.CreateCycle(1, 250, 249, 1, 20);
-    run = player.CreateCycle(1, 250, 249, 4, 6);
-    player.SetCurrAnim(idol);
+    m_idle = m_player.CreateCycle(1, 250, 249, 1, 20);
+    m_run = m_player.CreateCycle(1, 250, 249, 4, 6);
+    m_player.SetCurrAnim(m_idle);
 
     // Initialize enemies/bosses vectors
-    enemies = new vector<Enemy>();
-    bossEnemies = new vector<BossEnemy>();
+    m_enemies = new vector<Enemy>();
+    m_boss_enemies = new vector<BossEnemy>();
 
     // Initialize enemies, spawn enemies when game starts
     InitEnemies();
 
     // Set gameKey position and texture
-    gameKey.SetDest(610, 340, 1225/25, 980/25);
-    gameKey.SetImage("res/key.png", renderer);
-    gameKey.SetSrc(0, 0, 1225, 980);
+    m_game_key.SetDest(610, 340, 1225/25, 980/25);
+    m_game_key.SetImage("res/key.png", m_renderer);
+    m_game_key.SetSrc(0, 0, 1225, 980);
 
     // Load audio file for game over sound
-    gameOver.Load("res/gameover.wav");
+    m_game_over.Load("res/game_over.wav");
 
     // Start the main loop
     Loop();
@@ -61,14 +61,14 @@ Game::Game() {
 // Destructor
 Game::~Game() {
     // Delete the enemies/bosses vector
-    delete enemies;
-    delete bossEnemies;
+    delete m_enemies;
+    delete m_boss_enemies;
     
     // Clean up SDL and TTF
-    TTF_CloseFont(font);
+    TTF_CloseFont(m_font);
     TTF_Quit();
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(m_renderer);
+    SDL_DestroyWindow(m_window);
     IMG_Quit();
     TTF_Quit();
     SDL_Quit();
@@ -77,107 +77,107 @@ Game::~Game() {
 // Initialize enemies
 void Game::InitEnemies() {
     // Clear existing enemies, if any
-    enemies->clear();
+    m_enemies->clear();
 
     // Add enemies
     // Create enemy objects and set their properties
     Enemy enemy1;
     // Set enemy texture
-    enemy1.SetImage("res/enemy.png", renderer);
+    enemy1.SetImage("res/enemy.png", m_renderer);
     // Set enemy position and size
-    enemy1.SetDest(Width/2+700, Height/2-100, 900/5, 381/5);
+    enemy1.SetDest(width/2+700, height/2-100, 900/5, 381/5);
     enemy1.SetSrc(0, 0, 900, 381);
     // Add enemy to the vector
-    enemies->push_back(enemy1);
-    
+    m_enemies->push_back(enemy1);
+
     // Repeat for other enemies
     Enemy enemy2;
-    enemy2.SetImage("res/enemy.png", renderer);
-    enemy2.SetDest(Width/2+500, Height/2+8, 900/5, 381/5);
+    enemy2.SetImage("res/enemy.png", m_renderer);
+    enemy2.SetDest(width/2+500, height/2+8, 900/5, 381/5);
     enemy2.SetHealth(150);
     enemy2.SetSrc(0, 0, 900, 381);
-    enemies->push_back(enemy2);
+    m_enemies->push_back(enemy2);
 
     Enemy enemy3;
-    enemy3.SetImage("res/enemy.png", renderer);
-    enemy3.SetDest(Width/2+600, Height/2+100, 900/5, 381/5);
+    enemy3.SetImage("res/enemy.png", m_renderer);
+    enemy3.SetDest(width/2+600, height/2+100, 900/5, 381/5);
     enemy3.SetSrc(0, 0, 900, 381);
-    enemies->push_back(enemy3);
+    m_enemies->push_back(enemy3);
 
     Enemy enemy4;
-    enemy4.SetImage("res/enemy.png", renderer);
-    enemy4.SetDest(Width/2-700, Height/2-100, 900/5, 381/5);
+    enemy4.SetImage("res/enemy.png", m_renderer);
+    enemy4.SetDest(width/2-700, height/2-100, 900/5, 381/5);
     enemy4.SetSrc(0, 0, 900, 381);
-    enemies->push_back(enemy4);
+    m_enemies->push_back(enemy4);
 
     Enemy enemy5;
-    enemy5.SetImage("res/enemy.png", renderer);
-    enemy5.SetDest(Width/2-600, Height/2+8, 900/5, 381/5);
+    enemy5.SetImage("res/enemy.png", m_renderer);
+    enemy5.SetDest(width/2-600, height/2+8, 900/5, 381/5);
     enemy5.SetHealth(150);
     enemy5.SetSrc(0, 0, 900, 381);
-    enemies->push_back(enemy5);
+    m_enemies->push_back(enemy5);
 
     Enemy enemy6;
-    enemy6.SetImage("res/enemy.png", renderer);
-    enemy6.SetDest(Width/2-500, Height/2+108, 900/5, 381/5);
+    enemy6.SetImage("res/enemy.png", m_renderer);
+    enemy6.SetDest(width/2-500, height/2+108, 900/5, 381/5);
     enemy6.SetSrc(0, 0, 900, 381);
-    enemies->push_back(enemy6);
+    m_enemies->push_back(enemy6);
 
     Enemy enemy7;
-    enemy7.SetImage("res/enemy.png", renderer);
-    enemy7.SetDest(Width/2, Height/2+400, 900/5, 381/5);
+    enemy7.SetImage("res/enemy.png", m_renderer);
+    enemy7.SetDest(width/2, height/2+400, 900/5, 381/5);
     enemy7.SetHealth(150);
     enemy7.SetSrc(0, 0, 900, 381);
-    enemies->push_back(enemy7);
+    m_enemies->push_back(enemy7);
 
     Enemy enemy8;
-    enemy8.SetImage("res/enemy.png", renderer);
-    enemy8.SetDest(Width/2-100, Height/2+600, 900/5, 381/5);
+    enemy8.SetImage("res/enemy.png", m_renderer);
+    enemy8.SetDest(width/2-100, height/2+600, 900/5, 381/5);
     enemy8.SetSrc(0, 0, 900, 381);
-    enemies->push_back(enemy8);
+    m_enemies->push_back(enemy8);
 
     Enemy enemy9;
-    enemy9.SetImage("res/enemy.png", renderer);
-    enemy9.SetDest(Width/2-200, Height/2+700, 900/5, 381/5);
+    enemy9.SetImage("res/enemy.png", m_renderer);
+    enemy9.SetDest(width/2-200, height/2+700, 900/5, 381/5);
     enemy9.SetSrc(0, 0, 900, 381);
-    enemies->push_back(enemy9);
+    m_enemies->push_back(enemy9);
 }
 
 // Initialize boss
 void Game::InitBoss() {
     // Clear existing bosses
-    bossEnemies->clear();
+    m_boss_enemies->clear();
 
     // Add new boss enemy
     // Create boss object and set its properties
     BossEnemy boss;
     // Set boss texture
-    boss.SetImage("res/enemy.png", renderer);
+    boss.SetImage("res/enemy.png", m_renderer);
     // Set boss position and size
-    boss.SetDest(Width/2, Height/2-800, 900/3, 381/3);
+    boss.SetDest(width/2, height/2-800, 900/3, 381/3);
     // Set boss health
     boss.SetHealth(500);
     boss.SetSrc(0, 0, 900, 381);
     // Add boss to the vector
-    bossEnemies->push_back(boss);
+    m_boss_enemies->push_back(boss);
     // Set boss spawn status
-    bossSpawnedInGame = true;
+    m_boss_spawned_in_game = true;
 }
 
 // Main game loop
 void Game::Loop() {
-    static int lastTime = 0;
+    static int last_time = 0;
     // Check if the game is running
-    while (menu.GetRunning()) {
+    while (m_menu.GetRunning()) {
         // Check input
         Input();
         // Only update game state if not paused
-        if (!menu.GetPaused()) {
+        if (!m_menu.GetPaused()) {
             // Update frame count and time
-            lastFrame = SDL_GetTicks();
-            if(lastFrame >= (lastTime + 1000)) {
-                lastTime = lastFrame;
-                frameCount = 0;
+            m_last_frame = SDL_GetTicks();
+            if(m_last_frame >= (last_time + 1000)) {
+                last_time = m_last_frame;
+                m_frame_count = 0;
             }
             // Update game state
             Update();
@@ -190,32 +190,32 @@ void Game::Loop() {
 // Render the game
 void Game::Render() {
     // Render background
-    SDL_SetRenderDrawColor(renderer, 34, 34, 34, 255);
+    SDL_SetRenderDrawColor(m_renderer, 34, 34, 34, 255);
     static SDL_Rect rect;
     rect.x = rect.y = 0;
-    rect.w = Width;
-    rect.h = Height;
+    rect.w = width;
+    rect.h = height;
     // Fill the screen with the background color
-    SDL_RenderFillRect(renderer, &rect);
+    SDL_RenderFillRect(m_renderer, &rect);
     // Draw map and player
     DrawMap();
-    Draw(player);
+    Draw(m_player);
     // Display player stats in the top-left corner
-    static char scoreText[50];
-    snprintf(scoreText, sizeof(scoreText), "Score: %d", player.GetScore());
-    Draw(scoreText, 20, 20, 255, 255, 255);
-    static char livesText[50];
-    snprintf(livesText, sizeof(livesText), "Lives: %d", player.GetLives());
-    Draw(livesText, 20, 50, 255, 255, 255);
-    static char healthText[50];
-    snprintf(healthText, sizeof(healthText), "Health: %d/%d", player.GetHealth(), player.GetMaxHealth());
+    static char score_text[50];
+    snprintf(score_text, sizeof(score_text), "Score: %d", m_player.GetScore());
+    Draw(score_text, 20, 20, 255, 255, 255);
+    static char lives_text[50];
+    snprintf(lives_text, sizeof(lives_text), "Lives: %d", m_player.GetLives());
+    Draw(lives_text, 20, 50, 255, 255, 255);
+    static char health_text[50];
+    snprintf(health_text, sizeof(health_text), "Health: %d/%d", m_player.GetHealth(), m_player.GetMaxHealth());
     // Determine health text color based on health percentage
-    int healthPercentage = (player.GetHealth() * 100) / player.GetMaxHealth();
+    int health_percentage = (m_player.GetHealth() * 100) / m_player.GetMaxHealth();
     int r, g, b;
-    if (healthPercentage > 70) {
+    if (health_percentage > 70) {
         // Green for high health
         r = 0; g = 255; b = 0;
-    } else if (healthPercentage > 30) {
+    } else if (health_percentage > 30) {
         // Yellow for medium health
         r = 255; g = 255; b = 0;
     } else {
@@ -223,59 +223,59 @@ void Game::Render() {
         r = 255; g = 0; b = 0;
     }
     // Draw health text with color
-    Draw(healthText, 20, 80, r, g, b);
+    Draw(health_text, 20, 80, r, g, b);
     // Display pause/unpause message
-    static char pauseText[50];
-    snprintf(pauseText, sizeof(pauseText), "Press P to pause/unpause game");
-    Draw(pauseText, 20, 110, 255, 255, 255);
+    static char pause_text[50];
+    snprintf(pause_text, sizeof(pause_text), "Press P to pause/unpause game");
+    Draw(pause_text, 20, 110, 255, 255, 255);
     // Frame rate control
-    frameCount++;
+    m_frame_count++;
     // Calculate frame time
-    int timerFPS = SDL_GetTicks() - lastFrame;
-    if(timerFPS < (1000/60)) {
-        SDL_Delay((1000/60) - timerFPS);
+    int timer_FPS = SDL_GetTicks() - m_last_frame;
+    if(timer_FPS < (1000/60)) {
+        SDL_Delay((1000/60) - timer_FPS);
     }
     // Draw enemies and their health
-    if (enemies && !enemies->empty()) {
-        for (auto& enemy : *enemies) {
+    if (m_enemies && !m_enemies->empty()) {
+        for (auto& enemy : *m_enemies) {
             // Draw the enemy
             Draw(enemy);
             // Create health text
-            char healthText[20];
-            snprintf(healthText, sizeof(healthText), "HP: %d", enemy.GetHealth());
+            char health_text[20];
+            snprintf(health_text, sizeof(health_text), "HP: %d", enemy.GetHealth());
             // Position text at the upper-right corner of the enemy
-            Draw(healthText, enemy.GetDX() + enemy.GetDW() - 50, enemy.GetDY(), 255, 255, 255);
+            Draw(health_text, enemy.GetDX() + enemy.GetDW() - 50, enemy.GetDY(), 255, 255, 255);
         }
     }
     // Draw bosses and their health
-    if (bossEnemies && !bossEnemies->empty()) {
-        for (auto& boss : *bossEnemies) {
+    if (m_boss_enemies && !m_boss_enemies->empty()) {
+        for (auto& boss : *m_boss_enemies) {
             // Draw the boss
             Draw(boss);
             // Create health text
-            char healthText[20];
-            snprintf(healthText, sizeof(healthText), "HP: %d", boss.GetHealth());
+            char health_text[20];
+            snprintf(health_text, sizeof(health_text), "HP: %d", boss.GetHealth());
             // Position text at the upper-right corner of the boss
-            Draw(healthText, boss.GetDX() + boss.GetDW() - 50, boss.GetDY(), 255, 255, 255);
+            Draw(health_text, boss.GetDX() + boss.GetDW() - 50, boss.GetDY(), 255, 255, 255);
         }
     }
     // Draw the game key, when all enemies are dead and it hasn't been picked up already
-    if (gameKey.AllEnemiesDead(*enemies) && !gameKey.GetPickedUp()) {
-        Draw(gameKey);
+    if (m_game_key.AllEnemiesDead(*m_enemies) && !m_game_key.GetPickedUp()) {
+        Draw(m_game_key);
         // Set spawn status to true if the key is spawned
-        gameKey.SetSpawn(true);
+        m_game_key.SetSpawn(true);
     }
     // Check for collision between player and game key
-    if (gameKey.GetSpawn() && Collision(player, gameKey)) {
+    if (m_game_key.GetSpawn() && Collision(m_player, m_game_key)) {
         // Initialize boss if the key is picked up
         InitBoss(); 
         // Set the key as picked up and despawn the key
         // Reset spawn status
-        gameKey.SetSpawn(false);
-        gameKey.SetPickedUp(true);
-        gameKey.Despawn();
+        m_game_key.SetSpawn(false);
+        m_game_key.SetPickedUp(true);
+        m_game_key.Despawn();
     }
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(m_renderer);
 }
 
 // Draw method
@@ -283,7 +283,7 @@ void Game::Draw(Object o) {
     // Get the destination and source rectangles
     SDL_Rect dest = o.GetDest();
     SDL_Rect src = o.GetSrc();
-    SDL_RenderCopyEx(renderer, o.GetTex(), &src, &dest, 0, NULL, SDL_FLIP_NONE);
+    SDL_RenderCopyEx(m_renderer, o.GetTex(), &src, &dest, 0, NULL, SDL_FLIP_NONE);
 }
 
 // Draw message method
@@ -297,8 +297,8 @@ void Game::Draw(const char *msg, int x, int y, int r, int g, int b) {
     color.b = b;
     color.a = 255;
     // Render the text to a surface
-    surf = TTF_RenderText_Solid(font, msg, color);
-    tex = SDL_CreateTextureFromSurface(renderer, surf);
+    surf = TTF_RenderText_Solid(m_font, msg, color);
+    tex = SDL_CreateTextureFromSurface(m_renderer, surf);
     // Set the destination rectangle for the text
     SDL_Rect rect;
     rect.x = x;
@@ -307,7 +307,7 @@ void Game::Draw(const char *msg, int x, int y, int r, int g, int b) {
     rect.h = surf->h;
     // Render the text to the screen
     SDL_FreeSurface(surf);
-    SDL_RenderCopy(renderer, tex, NULL, &rect);
+    SDL_RenderCopy(m_renderer, tex, NULL, &rect);
     SDL_DestroyTexture(tex);
 }
 
@@ -317,52 +317,52 @@ void Game::Input() {
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
         // Close window
-        if(event.type == SDL_QUIT) { menu.SetRunning(false); }
+        if(event.type == SDL_QUIT) { m_menu.SetRunning(false); }
         if(event.type == SDL_KEYDOWN) {
             // ESC - close window
-            if(event.key.keysym.sym == SDLK_ESCAPE) menu.SetRunning(false);
-            // Normal movement keyw - W, A, S, D
+            if(event.key.keysym.sym == SDLK_ESCAPE) m_menu.SetRunning(false);
+            // Normal movement keys - W, A, S, D
             // Set flags for movement
-            if(event.key.keysym.sym == SDLK_a) {l = 1; r = 0;}
-            if(event.key.keysym.sym == SDLK_d) {r = 1; l = 0;}
-            if(event.key.keysym.sym == SDLK_w) {u = 1; d = 0;}
-            if(event.key.keysym.sym == SDLK_s) {d = 1; u = 0;}
+            if(event.key.keysym.sym == SDLK_a) { m_l = 1; m_r = 0; }
+            if(event.key.keysym.sym == SDLK_d) { m_r = 1; m_l = 0; }
+            if(event.key.keysym.sym == SDLK_w) { m_u = 1; m_d = 0; }
+            if(event.key.keysym.sym == SDLK_s) { m_d = 1; m_u = 0; }
             // Toggle pause when P is pressed
-            if(event.key.keysym.sym == SDLK_p) { menu.TogglePause(); }
+            if(event.key.keysym.sym == SDLK_p) { m_menu.TogglePause(); }
             // Player status - << overloading
-            if(event.key.keysym.sym == SDLK_i) { std::cout << player; }
+            if(event.key.keysym.sym == SDLK_i) { std::cout << m_player; }
             // Combined enemy health - "+" overloading
-            if(event.key.keysym.sym == SDLK_j && enemies && enemies->size() >= 2) {
+            if(event.key.keysym.sym == SDLK_j && m_enemies && m_enemies->size() >= 2) {
                 // Get the first two enemies
-                const Enemy& firstEnemy = (*enemies)[0];
-                const Enemy& secondEnemy = (*enemies)[1];
-                int combinedHealth = firstEnemy + secondEnemy;
-                std::cout << "Enemy1 Health (" << firstEnemy.GetHealth() << ") + Enemy2 Health (" << secondEnemy.GetHealth() << ") = Combined Health: " << combinedHealth << std::endl;
+                const Enemy& first_enemy = (*m_enemies)[0];
+                const Enemy& second_enemy = (*m_enemies)[1];
+                int combined_health = first_enemy + second_enemy;
+                std::cout << "Enemy1 Health (" << first_enemy.GetHealth() << ") + Enemy2 Health (" << second_enemy.GetHealth() << ") = Combined Health: " << combined_health << std::endl;
             }
             // Player attack when SPACE is pressed, attack is invisible
             if(event.key.keysym.sym == SDLK_SPACE) {
-                for (auto& enemy : *enemies) {
+                for (auto& enemy : *m_enemies) {
                     // Check if the player is in range of the enemy
-                    if (player.EnemyIsInRange(enemy.GetDX(), enemy.GetDY())) {
+                    if (m_player.EnemyIsInRange(enemy.GetDX(), enemy.GetDY())) {
                         // Deal damage to enemy, standard player attack is 10
-                        player.AttackEnemy(enemy, 10);
+                        m_player.AttackEnemy(enemy, 10);
                     }
                 }
-                for (auto& boss : *bossEnemies) {
+                for (auto& boss : *m_boss_enemies) {
                     // Check if the player is in range of the boss
-                    if (player.EnemyIsInRange(boss.GetDX(), boss.GetDY())) {
+                    if (m_player.EnemyIsInRange(boss.GetDX(), boss.GetDY())) {
                         // Deal damage to boss, standard player attack is 10
-                        player.AttackBossEnemy(boss);
+                        m_player.AttackBossEnemy(boss);
                     }
                 }
             }
         }
         if(event.type == SDL_KEYUP) {
             // Reset movement flags and animation when not moving
-            if(event.key.keysym.sym == SDLK_a) {l = 0; player.SetCurrAnim(idol);}
-            if(event.key.keysym.sym == SDLK_d) {r = 0; player.SetCurrAnim(idol);}
-            if(event.key.keysym.sym == SDLK_w) {u = 0; player.SetCurrAnim(idol);}
-            if(event.key.keysym.sym == SDLK_s) {d = 0; player.SetCurrAnim(idol);}
+            if(event.key.keysym.sym == SDLK_a) { m_l = 0; m_player.SetCurrAnim(m_idle); }
+            if(event.key.keysym.sym == SDLK_d) { m_r = 0; m_player.SetCurrAnim(m_idle); }
+            if(event.key.keysym.sym == SDLK_w) { m_u = 0; m_player.SetCurrAnim(m_idle); }
+            if(event.key.keysym.sym == SDLK_s) { m_d = 0; m_player.SetCurrAnim(m_idle); }
         }
     }
 }
@@ -370,129 +370,129 @@ void Game::Input() {
 // Update method
 void Game::Update() {
     // Create temporary player object to detect which tiles player can pass through
-    Object tempPlayer;
-    bool canMove;
+    Object temp_player;
+    bool can_move;
     // Check movement permission for direction LEFT
-    if (l) {
-        tempPlayer = player;
-        tempPlayer.SetDest(player.GetDX() - playerSpeed, player.GetDY());
-        canMove = true;
+    if (m_l) {
+        temp_player = m_player;
+        temp_player.SetDest(m_player.GetDX() - m_player_speed, m_player.GetDY());
+        can_move = true;
         // Player can't move through tiles with ID 3 or 0
-        for (auto& tile : map) {
+        for (auto& tile : m_map) {
             // Check player and off-limit tiles collision
-            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(tempPlayer, tile)) {
-                canMove = false;
+            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(temp_player, tile)) {
+                can_move = false;
                 break;
             }
         }
-        if (canMove) {
-            if (player.GetCurrAnim() != run){
+        if (can_move) {
+            if (m_player.GetCurrAnim() != m_run) {
                 // File for player facing LEFT
-                player.SetImage("res/player_l.png", renderer);
+                m_player.SetImage("res/player_l.png", m_renderer);
                 // Set animation while moving
-                player.SetCurrAnim(run);
+                m_player.SetCurrAnim(m_run);
             } else {
-                player.SetImage("res/player_l.png", renderer);
+                m_player.SetImage("res/player_l.png", m_renderer);
             }
             // Set correct destination
-            player.SetDest(tempPlayer.GetDX(), tempPlayer.GetDY());
+            m_player.SetDest(temp_player.GetDX(), temp_player.GetDY());
         }
     }
-    // Check movement permission for direction RIGHt
-    if (r) {
-        tempPlayer = player;
-        tempPlayer.SetImage("res/player_r.png", renderer);
-        tempPlayer.SetDest(player.GetDX() + playerSpeed, player.GetDY());
-        canMove = true;
+    // Check movement permission for direction RIGHT
+    if (m_r) {
+        temp_player = m_player;
+        temp_player.SetImage("res/player_r.png", m_renderer);
+        temp_player.SetDest(m_player.GetDX() + m_player_speed, m_player.GetDY());
+        can_move = true;
         // Player can't move through tiles with ID 3 or 0
-        for (auto& tile : map) {
+        for (auto& tile : m_map) {
             // Check player and off_limits tiles collision
-            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(tempPlayer, tile)) {
-                canMove = false;
+            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(temp_player, tile)) {
+                can_move = false;
                 break;
             }
         }
-        if (canMove) {
-            if (player.GetCurrAnim() != run){
+        if (can_move) {
+            if (m_player.GetCurrAnim() != m_run) {
                 // File for player facing RIGHT
-                player.SetImage("res/player_r.png", renderer);
+                m_player.SetImage("res/player_r.png", m_renderer);
                 // Set animation while moving
-                player.SetCurrAnim(run);
+                m_player.SetCurrAnim(m_run);
             } else {
-                player.SetImage("res/player_r.png", renderer);
+                m_player.SetImage("res/player_r.png", m_renderer);
             }
             // Set correct destination
-            player.SetDest(tempPlayer.GetDX(), tempPlayer.GetDY());
+            m_player.SetDest(temp_player.GetDX(), temp_player.GetDY());
         }
     }
     // Check movement permission for direction UP
-    if (u) {
-        tempPlayer = player;
-        tempPlayer.SetDest(player.GetDX(), player.GetDY() - playerSpeed);
-        canMove = true;
+    if (m_u) {
+        temp_player = m_player;
+        temp_player.SetDest(m_player.GetDX(), m_player.GetDY() - m_player_speed);
+        can_move = true;
         // Player can't move through tiles with ID 3 or 0
-        for (auto& tile : map) {
+        for (auto& tile : m_map) {
             // Check player and off-limit tiles collision
-            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(tempPlayer, tile)) {
-                canMove = false;
+            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(temp_player, tile)) {
+                can_move = false;
                 break;
             }
         }
-        if (canMove) {
+        if (can_move) {
             // Set animation while moving
-            if (player.GetCurrAnim() != run) player.SetCurrAnim(run);
+            if (m_player.GetCurrAnim() != m_run) m_player.SetCurrAnim(m_run);
             // Set correct destination
-            player.SetDest(tempPlayer.GetDX(), tempPlayer.GetDY());
+            m_player.SetDest(temp_player.GetDX(), temp_player.GetDY());
         }
     }
     // Check movement permission for direction DOWN
-    if (d) {
-        tempPlayer = player;
-        tempPlayer.SetDest(player.GetDX(), player.GetDY() + playerSpeed);
-        canMove = true;
+    if (m_d) {
+        temp_player = m_player;
+        temp_player.SetDest(m_player.GetDX(), m_player.GetDY() + m_player_speed);
+        can_move = true;
         // Player can't move through tiles with ID 3 or 0
-        for (auto& tile : map) {
+        for (auto& tile : m_map) {
             // Check player and off-limits tiles collision
-            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(tempPlayer, tile)) {
-                canMove = false;
+            if ((tile.GetID() == 3 or tile.GetID() == 0) && Collision(temp_player, tile)) {
+                can_move = false;
                 break;
             }
         }
-        if (canMove) {
+        if (can_move) {
             // Set animation while moving
-            if (player.GetCurrAnim() != run) player.SetCurrAnim(run);
+            if (m_player.GetCurrAnim() != m_run) m_player.SetCurrAnim(m_run);
             // Set correct destination
-            player.SetDest(tempPlayer.GetDX(), tempPlayer.GetDY());
+            m_player.SetDest(temp_player.GetDX(), temp_player.GetDY());
         }
     }
     // Check if player is out of bounds and scroll the map
-    SDL_Rect finalDest = player.GetDest();
-    if (finalDest.x < 140) { player.SetDest(140, finalDest.y); Scroll(playerSpeed, 0); }
-    if (finalDest.x > Width - 200) { player.SetDest(Width - 200, finalDest.y); Scroll(-playerSpeed, 0); }
-    if (finalDest.y < 220) { player.SetDest(finalDest.x, 220); Scroll(0, playerSpeed); }
-    if (finalDest.y > Height - 260) { player.SetDest(finalDest.x, Height - 260); Scroll(0, -playerSpeed); }
+    SDL_Rect finalDest = m_player.GetDest();
+    if (finalDest.x < 140) { m_player.SetDest(140, finalDest.y); Scroll(m_player_speed, 0); }
+    if (finalDest.x > width - 200) { m_player.SetDest(width - 200, finalDest.y); Scroll(-m_player_speed, 0); }
+    if (finalDest.y < 220) { m_player.SetDest(finalDest.x, 220); Scroll(0, m_player_speed); }
+    if (finalDest.y > height - 260) { m_player.SetDest(finalDest.x, height - 260); Scroll(0, -m_player_speed); }
     // Update player animation
-    player.UpdateAnimation();
+    m_player.UpdateAnimation();
     // Update enemies, if there are any
-    if (enemies && !enemies->empty()) {
-        auto it = enemies->begin();
-        while (it != enemies->end()) {
+    if (m_enemies && !m_enemies->empty()) {
+        auto it = m_enemies->begin();
+        while (it != m_enemies->end()) {
             // Update the attack cooldown
             it->UpdateCooldown();
             // If player is in range, attack
-            if (it->IsInRange(player.GetDX(), player.GetDY())) {
+            if (it->IsInRange(m_player.GetDX(), m_player.GetDY())) {
                 // Try to attack - the Attack method will check cooldown internally
-                it->Attack(player, 10);
+                it->Attack(m_player, 10);
             } else {
                 // Move towards player
-                it->MoveTowards(player.GetDX(), player.GetDY(), enemySpeed);
+                it->MoveTowards(m_player.GetDX(), m_player.GetDY(), m_enemy_speed);
             }
             // Check if enemy's health is equal or less than zero
             if (it->GetHealth() <= 0) {
                 // Add score before removing the enemy
-                player.AddScore(100);
+                m_player.AddScore(100);
                 // Remove the enemy and update the iterator
-                it = enemies->erase(it);
+                it = m_enemies->erase(it);
             } else {
                 // Only increment the iterator if we didn't remove the current enemy
                 ++it;
@@ -500,27 +500,27 @@ void Game::Update() {
         }
     }
     // Update boss enemies, if there are any
-    if (bossEnemies && !bossEnemies->empty()) {
-        auto it = bossEnemies->begin();
-        while (it != bossEnemies->end()) {
+    if (m_boss_enemies && !m_boss_enemies->empty()) {
+        auto it = m_boss_enemies->begin();
+        while (it != m_boss_enemies->end()) {
             // Update the attack cooldown
             it->UpdateCooldown();
             // If player is in range, attack
-            if (it->IsInRange(player.GetDX(), player.GetDY())) {
+            if (it->IsInRange(m_player.GetDX(), m_player.GetDY())) {
                 // Try to attack - the Attack method will check cooldown internally
-                it->Attack(player, 20);
+                it->Attack(m_player, 20);
             } else {
                 // Move towards player
-                it->MoveTowards(player.GetDX(), player.GetDY(), bossSpeed);
+                it->MoveTowards(m_player.GetDX(), m_player.GetDY(), m_boss_speed);
             }
             // Check if boss's health is zero or less
             if (it->GetHealth() <= 0) {
                 // Add score before removing the boss
-                player.AddScore(500);
+                m_player.AddScore(500);
                 // Remove the boss and update the iterator
-                it = bossEnemies->erase(it);
+                it = m_boss_enemies->erase(it);
                 // End game if boss is defeated, play specific audio
-                it->EndGame(gameOver);
+                it->EndGame(m_game_over);
             } else {
                 // Only increment the iterator if we didn't remove the current boss
                 ++it;
@@ -528,8 +528,8 @@ void Game::Update() {
         }
     }
     // Check if player is dead
-    if (!player.IsAlive()) {
-        menu.SetRunning(false);
+    if (!m_player.IsAlive()) {
+        m_menu.SetRunning(false);
     }
 }       
 
@@ -539,7 +539,7 @@ void Game::LoadMap(const char *filename) {
     // Create a temporary object to load the map
     Object temp;
     // Set image for tile colors
-    temp.SetImage("res/colors_25px.png", renderer);
+    temp.SetImage("res/colors_25px.png", m_renderer);
     int current, mw, mh;
     ifstream in(filename);
     // Check if the file opened successfully
@@ -548,12 +548,12 @@ void Game::LoadMap(const char *filename) {
         return;
     }
     // Clear existing map
-    map.clear();
+    m_map.clear();
     // Read map dimensions and offset
     in >> mw;
     in >> mh;
-    in >> mapX;
-    in >> mapY;
+    in >> m_map_x;
+    in >> m_map_y;
     // Read tile data
     for(int i = 0; i < mh; i++) {
         for(int j = 0; j < mw; j++) {
@@ -565,13 +565,13 @@ void Game::LoadMap(const char *filename) {
             if(current != 0) {
                 // Set tiles to corresponding location
                 temp.SetSolid(true);
-                temp.SetSrc((current-1)*Tile_size, 0, Tile_size, Tile_size);
-                temp.SetDest(j * Tile_size + mapX, i * Tile_size + mapY, Tile_size, Tile_size);
+                temp.SetSrc((current-1)*tile_size, 0, tile_size, tile_size);
+                temp.SetDest(j * tile_size + m_map_x, i * tile_size + m_map_y, tile_size, tile_size);
                 // Set tile ID
                 temp.SetID(current);
                 if(current == 3) temp.SetSolid(false);
                 // Add tile to the map
-                map.push_back(temp);
+                m_map.push_back(temp);
             }
         }
     }
@@ -582,36 +582,36 @@ void Game::LoadMap(const char *filename) {
 // Draw the map
 // The map is a vector of tiles, each tile has a destination and source rectangle
 void Game::DrawMap() {
-    for (int i = 0; i < map.size(); i++) {
-        int dx = map[i].GetDX();
-        int dy = map[i].GetDY();
+    for (int i = 0; i < m_map.size(); i++) {
+        int dx = m_map[i].GetDX();
+        int dy = m_map[i].GetDY();
         // Check if the tile is visible on the screen
-        bool visible = dx + Tile_size >= 0 &&
-                       dy + Tile_size >= 0 &&
-                       dx < Width &&
-                       dy < Height;
+        bool visible = dx + tile_size >= 0 &&
+                       dy + tile_size >= 0 &&
+                       dx < width &&
+                       dy < height;
         // Draw tile only if it is within the screen bounds
         if (visible) {
-            Draw(map[i]);
+            Draw(m_map[i]);
         }
     }
 }
 
 // Scroll the map by a given x and y offset
 void Game::Scroll(int x, int y) {
-    for (int i = 0; i < map.size(); i++) {
-        map[i].SetDest(map[i].GetDX() + x, map[i].GetDY() + y);
+    for (int i = 0; i < m_map.size(); i++) {
+        m_map[i].SetDest(m_map[i].GetDX() + x, m_map[i].GetDY() + y);
     }
     // Scroll enemies
-    for (auto& enemy : *enemies) {
+    for (auto& enemy : *m_enemies) {
         enemy.SetDest(enemy.GetDX() + x, enemy.GetDY() + y);
     }
     // Scroll bosses
-    for (auto& boss : *bossEnemies) {
+    for (auto& boss : *m_boss_enemies) {
         boss.SetDest(boss.GetDX() + x, boss.GetDY() + y);
     }   
     // Scroll gameKey
-    gameKey.SetDest(gameKey.GetDX() + x, gameKey.GetDY() + y);
+    m_game_key.SetDest(m_game_key.GetDX() + x, m_game_key.GetDY() + y);
 }
 
 // Check for collision between two objects
