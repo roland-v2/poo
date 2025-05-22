@@ -1,4 +1,5 @@
 #include "game.h"
+using namespace OOPGame;
 
 // Constructor
 Game::Game() {
@@ -50,6 +51,9 @@ Game::Game() {
     gameKey.SetDest(610, 340, 1225/25, 980/25);
     gameKey.SetImage("res/key.png", renderer);
     gameKey.SetSrc(0, 0, 1225, 980);
+
+    // Load audio file for game over sound
+    gameOver.Load("res/gameover.wav");
 
     // Start the main loop
     Loop();
@@ -188,7 +192,7 @@ void Game::Loop() {
 void Game::Render() {
     // Render background
     SDL_SetRenderDrawColor(renderer, 34, 34, 34, 255);
-    SDL_Rect rect;
+    static SDL_Rect rect;
     rect.x = rect.y = 0;
     rect.w = Width;
     rect.h = Height;
@@ -198,13 +202,13 @@ void Game::Render() {
     DrawMap();
     Draw(player);
     // Display player stats in the top-left corner
-    char scoreText[50];
+    static char scoreText[50];
     snprintf(scoreText, sizeof(scoreText), "Score: %d", player.GetScore());
     Draw(scoreText, 20, 20, 255, 255, 255);
-    char livesText[50];
+    static char livesText[50];
     snprintf(livesText, sizeof(livesText), "Lives: %d", player.GetLives());
     Draw(livesText, 20, 50, 255, 255, 255);
-    char healthText[50];
+    static char healthText[50];
     snprintf(healthText, sizeof(healthText), "Health: %d/%d", player.GetHealth(), player.GetMaxHealth());
     // Determine health text color based on health percentage
     int healthPercentage = (player.GetHealth() * 100) / player.GetMaxHealth();
@@ -222,7 +226,7 @@ void Game::Render() {
     // Draw health text with color
     Draw(healthText, 20, 80, r, g, b);
     // Display pause/unpause message
-    char pauseText[50];
+    static char pauseText[50];
     snprintf(pauseText, sizeof(pauseText), "Press P to pause/unpause game");
     Draw(pauseText, 20, 110, 255, 255, 255);
     // Frame rate control
@@ -326,6 +330,16 @@ void Game::Input() {
             if(event.key.keysym.sym == SDLK_s) {d = 1; u = 0;}
             // Toggle pause when P is pressed
             if(event.key.keysym.sym == SDLK_p) { menu.TogglePause(); }
+            // Player status - << overloading
+            if(event.key.keysym.sym == SDLK_i) { std::cout << player; }
+            // Combined enemy health - "+" overloading
+            if(event.key.keysym.sym == SDLK_j && enemies && enemies->size() >= 2) {
+                // Get the first two enemies
+                const Enemy& firstEnemy = (*enemies)[0];
+                const Enemy& secondEnemy = (*enemies)[1];
+                int combinedHealth = firstEnemy + secondEnemy;
+                std::cout << "Enemy1 Health (" << firstEnemy.GetHealth() << ") + Enemy2 Health (" << secondEnemy.GetHealth() << ") = Combined Health: " << combinedHealth << std::endl;
+            }
             // Player attack when SPACE is pressed, attack is invisible
             if(event.key.keysym.sym == SDLK_SPACE) {
                 for (auto& enemy : *enemies) {
@@ -339,7 +353,7 @@ void Game::Input() {
                     // Check if the player is in range of the boss
                     if (player.EnemyIsInRange(boss.GetDX(), boss.GetDY())) {
                         // Deal damage to boss, standard player attack is 10
-                        player.AttackEnemy(boss, 10);
+                        player.AttackBossEnemy(boss);
                     }
                 }
             }
