@@ -1,19 +1,15 @@
 #pragma once
 
-#include </opt/homebrew/include/SDL2/SDL.h>
-#include </opt/homebrew/include/SDL2/SDL_image.h>
-#include </opt/homebrew/include/SDL2/SDL_ttf.h>
-#include </opt/homebrew/include/SDL2/SDL_mixer.h>
-#include <iostream>
-
+// Handles game pause and running state
 class Menu {
 public:
-    
-    void TogglePause();
-    
-    // Check if game is paused
-    bool IsPaused() const;
-    
+    // Getters and setters
+    bool GetPaused() const { return isPaused; }
+    void TogglePause() { isPaused = !isPaused; }
+    bool GetRunning() const { return running; }
+    void SetRunning(bool run) { running = run; }
 private:
-    bool isPaused;
+    // Pause and running states
+    bool isPaused = false;
+    bool running = true;
 };

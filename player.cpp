@@ -1,66 +1,48 @@
 #include "player.h"
-#include "enemy.h" // Include enemy.h in the implementation file
 
+// Initializes default player attributes
 Player::Player() : score(0), lives(3), rangePlayer(100) {
     SetHealth(100);
     SetMaxHealth(100);
 }
 
-// Score methods
-void Player::AddScore(int points) {
-    score += points;
-}
-
-void Player::ResetScore() {
-    score = 0;
-}
-
-int Player::GetScore() const {
-    return score;
-}
-
-// Lives methods
-void Player::SetLives(int lives) {
-    this->lives = lives;
-}
-
-int Player::GetLives() const {
-    return lives;
-}
-
+// Lives method
 void Player::LoseLife() {
+    // Number of lives drops by one
     lives--;
+    // Check if player is still alive
     if (lives > 0) {
-        // Reset health when losing a life but still alive
+        // Sets player's current life to max
         SetHealth(GetMaxHealth());
     }
 }
 
-bool Player::IsAlive() const {
-    return lives > 0;
-}
-
-// Health methods
+// Health/damage methods
 void Player::TakeDamage(int amount) {
+    // Drops health by amount
     SetHealth(GetHealth() - amount);
-    
-    // Check if health is depleted
+    // Check if health is below zero
     if (GetHealth() <= 0) {
-        SetHealth(0); // Don't go below zero 
+        // Don't go below zero
+        SetHealth(0);
+        // Go to next life  
         LoseLife();
     }
 }
 
 void Player::AttackEnemy(Enemy &target, int amount) {
+    // If the enemy is in range, deal damage
     if (EnemyIsInRange(target.GetDX(), target.GetDY())) {
         target.TakeDamageE(amount);
     }
 }
 
+// Range method
 bool Player::EnemyIsInRange(int x, int y) {
     int dx = GetDX() - x;
     int dy = GetDY() - y;
+    // Calculate the distance to the enemy
     double distance = sqrt(dx * dx + dy * dy);
-    
+    // Check if the distance is within the player's range
     return distance <= rangePlayer;
 }
